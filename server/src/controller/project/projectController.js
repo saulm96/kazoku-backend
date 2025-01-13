@@ -1,7 +1,7 @@
-import Project from "../models/projectModel.js";
+import Project from "../../models/projectModel.js";
 
-class ProjectController {
-    static async createProject(name, date, description, status, likes, url, owner, team_members) {
+
+    async function createProject(name, date, description, status, likes, url, owner, team_members) {
         try {
             return await Project.create({ 
                 name, 
@@ -18,7 +18,7 @@ class ProjectController {
         }
     }
 
-    static async getAllProjects(owner, category) {
+    async function getAllProjects(owner, category) {
         try {
             const filter = {};
             if (owner) filter.owner = owner;
@@ -29,7 +29,7 @@ class ProjectController {
         }
     }
 
-    static async getProject(id) {
+    async function getProject(id) {
         try {
             return await Project.findById(id);
         } catch (error) {
@@ -37,13 +37,21 @@ class ProjectController {
         }
     }
 
-    static async deleteProject(id) {
+    async function deleteProject(id) {
         try {
             return await Project.findByIdAndDelete(id);
         } catch (error) {
             throw new Error("Error al eliminar el proyecto");
         }
     }
-}
 
-export default ProjectController;
+
+    export const functions = {
+
+        createProject,
+        getAllProjects,
+        getProject,
+        deleteProject
+    }
+
+    export default functions

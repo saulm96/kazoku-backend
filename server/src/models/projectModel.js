@@ -38,6 +38,6 @@ const ProjectSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-const Product = mongoose.model('Project', ProjectSchema);
+const Project = mongoose.model('Project', ProjectSchema);
 
 export default Project;
