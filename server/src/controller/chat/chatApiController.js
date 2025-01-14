@@ -8,7 +8,7 @@ async function createChat(req, res) {
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            message: "Error interno del servidor"
+            message: "Server internal error"
         });
     }
 }
@@ -19,14 +19,14 @@ async function getById(req, res) {
         const chat = await chatController.getById(id);
         if (!chat) {
             return res.status(404).json({
-                message: "Chat no encontrado"
+                message: "Chat not found"
             });
         }
         return res.status(200).json(chat);
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            message: "Error interno del servidor"
+            message: "Server internal error"
         });
     }
 }
@@ -39,7 +39,7 @@ async function getAllChatsByUser(req, res) {
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            message: "Error interno del servidor"
+            message: "Server internal error"
         });
     }
 }
@@ -52,13 +52,13 @@ async function addMessage(req, res) {
         return res.status(200).json(chat);
     } catch (error) {
         console.error(error);
-        if (error.message === "El chat no existe") {
+        if (error.message === "Chat dosen't exist") {
             return res.status(404).json({
                 message: error.message
             });
         }
         return res.status(500).json({
-            message: "Error interno del servidor"
+            message: "Server internal error"
         });
     }
 }
