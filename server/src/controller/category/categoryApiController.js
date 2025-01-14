@@ -18,7 +18,7 @@ import categoryController from "./categoryController.js";
             res.status(200).json(categories);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: "Error interno del servidor" });
+            return res.status(500).json({ message: "Server not found" });
         }
     }
 
@@ -26,12 +26,12 @@ import categoryController from "./categoryController.js";
         try {
             const category = await categoryController.getCategory(req.params.id);
             if (!category) {
-                return res.status(404).json({ message: "Categoría no encontrada" });
+                return res.status(404).json({ message: "Category not found" });
             }
             res.status(200).json(category);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: "Error interno del servidor" });
+            return res.status(500).json({ message: "Server not found" });
         }
     }
 
@@ -44,12 +44,12 @@ import categoryController from "./categoryController.js";
                 description
             );
             if (!category) {
-                return res.status(404).json({ message: "Categoría no encontrada" });
+                return res.status(404).json({ message: "Category not found" });
             }
             res.status(200).json(category);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: "Error interno del servidor" });
+            return res.status(500).json({ message: "Server not found" });
         }
     }
 
@@ -57,12 +57,12 @@ import categoryController from "./categoryController.js";
         try {
             const category = await categoryController.deleteCategory(req.params.id);
             if (!category) {
-                return res.status(404).json({ message: "Categoría no encontrada" });
+                return res.status(404).json({ message: "Category not found" });
             }
-            res.status(200).json({ message: "Categoría eliminada correctamente" });
+            res.status(200).json({ message: "Category successfully deleted" });
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: "Error interno del servidor" });
+            return res.status(500).json({ message: "Server not found" });
         }
     }
 
