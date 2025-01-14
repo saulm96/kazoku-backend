@@ -27,6 +27,21 @@ async function getUserByEmail(email) {
     return user;
 }
 
+async function getUsersByCountry(country){
+    const users = await User.find({
+        country
+    });
+    if (!users) throw new error.MISSING_USERS_IN_COUNTRY();
+    return users;
+}
+async function getUsersByCity(city){
+    const users = await User.find({
+        city
+    });
+    if (!users) throw new error.MISSING_USERS_IN_CITY();
+    return users;
+}
+
 async function createUser(name, lastname, username, email, password, telephone, social_media, description, role, privacy, country, city) {
     if (!name || !lastname || !username || !email || !password || !telephone || !social_media || !description || !role || !privacy || !country || !city) {
         throw new error.MISSING_PARAMETERS();
@@ -81,6 +96,8 @@ export const functions = {
     getAllUsers,
     getUserById,
     getUserByEmail,
+    getUsersByCountry,
+    getUsersByCity,
     createUser,
     updateUser,
     deleteUser
