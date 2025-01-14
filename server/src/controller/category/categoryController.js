@@ -1,50 +1,87 @@
 import Category from "../../models/categoryModel.js";
+import categoryError from "../../helpers/categoryError.js";
 
-
-     async function createCategory(name, description) {
-        try {
-            return await Category.create({ name, description });
-        } catch (error) {
-            throw new Error(error.message);
+async function createCategory(name, description) {
+    try {
+        const category = await Category.create({ name, description });
+        if (!category) {
+            throw new categoryError.CATEGORY_CREATE_ERROR();
         }
-    }
-
-    async function getAllCategories() {
-        try {
-            return await Category.find();
-        } catch (error) {
-            throw new Error("Error al obtener las categorías");
+        return category;
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            throw new categoryError.CATEGORY_INVALID_DATA(error.message);
         }
+        throw new categoryError.CATEGORY_CREATE_ERROR();
     }
+}
 
-    async function getCategory(id) {
-        try {
-            return await Category.findById(id);
-        } catch (error) {
-            throw new Error("Error al obtener la categoría");
+async function getAllCategories() {
+    try {
+        const categories = await Category.find();
+        if (!categories.length) {
+            throw new categoryError.CATEGORY_NOT_FOUND();
         }
-    }
-
-    async function updateCategory(id, name, description) {
-        try {
-            return await Category.findByIdAndUpdate(
-                id, 
-                { name, description },
-                { new: true }
-            );
-        } catch (error) {
-            throw new Error("Error al actualizar la categoría");
+        return categories;
+    } catch (error) {
+        if (error.name === 'CATEGORY_NOT_FOUND') {
+            throw error;
         }
+        throw new categoryError.CATEGORY_LIST_ERROR();
     }
+}
 
-    async function deleteCategory(id) {
-        try {
-            return await Category.findByIdAndDelete(id);
-        } catch (error) {
-            throw new Error("Error al eliminar la categoría");
+async function getCategory(id) {
+    try {
+        const category = await Category.findById(id);
+        if (!category) {
+            throw new categoryError.CATEGORY_NOT_FOUND();
         }
+        return category;
+    } catch (error) {
+        if (error.name === 'CATEGORY_NOT_FOUND') {
+            throw error;
+        }
+        throw new categoryError.CATEGORY_NOT_FOUND();
     }
+}
 
+async function updateCategory(id, name, description) {
+    try {
+        const category = await Category.findByIdAndUpdate(
+            id, 
+            { name, description },
+            { new: true }
+        );
+        if (!category) {
+            throw new categoryError.CATEGORY_NOT_FOUND();
+        }
+        return category;
+    } catch (error) {
+        if (error.name === 'CATEGORY_NOT_FOUND') {
+            throw error;
+        }
+        if (error.name === 'ValidationError') {
+            throw new categoryError.CATEGORY_INVALID_DATA(error.message);
+        }
+        throw new categoryError.CATEGORY_UPDATE_ERROR();
+    }
+}
+
+async function deleteCategory(id) {
+    try {
+        const category = await Category.findByIdAndDelete(id);
+        if (!category) {
+            throw new categoryError.CATEGORY_NOT_FOUND();
+        }
+        return category;
+    } catch (error) {
+        if (error.name === 'CATEGORY_NOT_FOUND') {
+            throw error;
+        }
+        throw new categoryError.CATEGORY_DELETE_ERROR();
+    }
+}
 
 export const functions = {
     createCategory,
