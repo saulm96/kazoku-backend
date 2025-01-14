@@ -12,6 +12,7 @@ class EMAIL_ALREADY_EXISTS extends Error {
 }
 export const errors = {
     USER_NOT_FOUND,
+    EMAIL_ALREADY_EXISTS
 };
 
 export default errors;

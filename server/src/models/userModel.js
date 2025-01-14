@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema({
     city:{
         type: String,
     },
+    isActivated:{
+        type: Boolean,
+        default: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

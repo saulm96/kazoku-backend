@@ -52,4 +52,37 @@ async function createUser(name, lastname, username, email, password, telephone, 
 }
 
 async function updateUser(id, name, lastname, username, email, password, telephone, social_media, description, role, privacy, country, city) {
+    const updatedUser = await User.findByIdAndUpdate(id, {
+        name,
+        lastname,
+        username,
+        email,
+        password,
+        telephone,
+        social_media,
+        description,
+        role,
+        privacy,
+        country,
+        city,
+        isActivated
+    });
+    if (!updatedUser) throw new error.USER_NOT_FOUND();
+    return updatedUser;
 }
+
+async function deleteUser(id) {
+    const deletedUser = await User.findByIdAndDelete(id);
+    if (!deletedUser) throw new error.USER_NOT_FOUND();
+    return deletedUser;
+}
+
+export const functions = {
+    getAllUsers,
+    getUserById,
+    getUserByEmail,
+    createUser,
+    updateUser,
+    deleteUser
+};
+export default functions;
