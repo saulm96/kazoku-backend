@@ -1,46 +1,85 @@
 import Image from "../../models/imageModel.js";
+import imageError from "../../helpers/imageError.js";
 
 async function createImage(name, url, owner) {
     try {
-        return await Image.create({ name, url, owner });
+        const image = await Image.create({ name, url, owner });
+        if (!image) {
+            throw new imageError.IMAGE_CREATE_ERROR();
+        }
+        return image;
     } catch (error) {
-        throw new Error(error.message);
+        if (error.name === 'ValidationError') {
+            throw new imageError.IMAGE_INVALID_DATA(error.message);
+        }
+        throw new imageError.IMAGE_CREATE_ERROR();
     }
 }
 
 async function getAllImages() {
     try {
-        return await Image.find().populate('owner');
+        const images = await Image.find().populate('owner');
+        if (!images.length) {
+            throw new imageError.IMAGE_NOT_FOUND();
+        }
+        return images;
     } catch (error) {
-        throw new Error("Error al obtener las imágenes");
+        if (error.name === 'IMAGE_NOT_FOUND') {
+            throw error;
+        }
+        throw new imageError.IMAGE_LIST_ERROR();
     }
 }
 
 async function getImage(id) {
     try {
-        return await Image.findById(id).populate('owner');
+        const image = await Image.findById(id).populate('owner');
+        if (!image) {
+            throw new imageError.IMAGE_NOT_FOUND();
+        }
+        return image;
     } catch (error) {
-        throw new Error("Error al obtener la imagen");
+        if (error.name === 'IMAGE_NOT_FOUND') {
+            throw error;
+        }
+        throw new imageError.IMAGE_NOT_FOUND();
     }
 }
 
 async function updateImage(id, name, url) {
     try {
-        return await Image.findByIdAndUpdate(
+        const image = await Image.findByIdAndUpdate(
             id, 
             { name, url },
             { new: true }
         ).populate('owner');
+        if (!image) {
+            throw new imageError.IMAGE_NOT_FOUND();
+        }
+        return image;
     } catch (error) {
-        throw new Error("Error al actualizar la imagen");
+        if (error.name === 'IMAGE_NOT_FOUND') {
+            throw error;
+        }
+        if (error.name === 'ValidationError') {
+            throw new imageError.IMAGE_INVALID_DATA(error.message);
+        }
+        throw new imageError.IMAGE_UPDATE_ERROR();
     }
 }
 
 async function deleteImage(id) {
     try {
-        return await Image.findByIdAndDelete(id);
+        const image = await Image.findByIdAndDelete(id);
+        if (!image) {
+            throw new imageError.IMAGE_NOT_FOUND();
+        }
+        return image;
     } catch (error) {
-        throw new Error("Error al eliminar la imagen");
+        if (error.name === 'IMAGE_NOT_FOUND') {
+            throw error;
+        }
+        throw new imageError.IMAGE_DELETE_ERROR();
     }
 }
 
@@ -52,4 +91,4 @@ export const functions = {
     deleteImage
 }
 
-export default functions
+export default functions;

@@ -17,7 +17,7 @@ async function getAllImages(req, res) {
         res.status(200).json(images);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: "Error interno del servidor" });
+        return res.status(500).json({ message: "server internal error" });
     }
 }
 
@@ -25,12 +25,12 @@ async function getImage(req, res) {
     try {
         const image = await imageController.getImage(req.params.id);
         if (!image) {
-            return res.status(404).json({ message: "Imagen no encontrada" });
+            return res.status(404).json({ message: "Image not found" });
         }
         res.status(200).json(image);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: "Error interno del servidor" });
+        return res.status(500).json({ message: "server internal error" });
     }
 }
 
@@ -43,12 +43,12 @@ async function updateImage(req, res) {
             url
         );
         if (!image) {
-            return res.status(404).json({ message: "Imagen no encontrada" });
+            return res.status(404).json({ message: "Image not found" });
         }
         res.status(200).json(image);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: "Error interno del servidor" });
+        return res.status(500).json({ message: "server internal error" });
     }
 }
 
@@ -56,12 +56,12 @@ async function deleteImage(req, res) {
     try {
         const image = await imageController.deleteImage(req.params.id);
         if (!image) {
-            return res.status(404).json({ message: "Imagen no encontrada" });
+            return res.status(404).json({ message: "Image not found" });
         }
-        res.status(200).json({ message: "Imagen eliminada correctamente" });
+        res.status(200).json({ message: "Image correctly deleted" });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: "Error interno del servidor" });
+        return res.status(500).json({ message: "server internal error" });
     }
 }
 

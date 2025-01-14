@@ -21,7 +21,7 @@ import projectController from "./projectController.js";
             res.status(200).json(projects);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: "Error interno del servidor" });
+            return res.status(500).json({ message: "Server internal error" });
         }
     }
 
@@ -31,7 +31,7 @@ import projectController from "./projectController.js";
             res.status(200).json(project);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: "Error interno del servidor" });
+            return res.status(500).json({ message: "Server internal error" });
         }
     }
 
@@ -41,7 +41,7 @@ import projectController from "./projectController.js";
             res.status(200).json(project);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: "Error interno del servidor" });
+            return res.status(500).json({ message: "Server internal error" });
         }
     }
 
