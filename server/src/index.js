@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDb from "./config/connectDb.js";
-
+import router from "./routes/router.js";
 
 dotenv.config();
 const PORT = 3000;
@@ -13,7 +13,7 @@ app.get("/", (req,res)=>{
     res.send("Hello World");
 })
 
-/* app.use("",router); */
+app.use("",router);
 
 async function startServer(){
     await connectDb();
