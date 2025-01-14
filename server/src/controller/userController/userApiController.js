@@ -57,7 +57,7 @@ async function createUser(req, res) {
         res.status(404).json(error);
         res.json({ error: error.message });
     }
-
+}
     async function updateUser(req, res) {
         try {
             const user = await userController.updateUser(req.params.id, req.body);
@@ -67,7 +67,7 @@ async function createUser(req, res) {
             res.json({ error: error.message });
         }
     }
-}
+
 
 async function deleteUser(req, res) {
     try {
