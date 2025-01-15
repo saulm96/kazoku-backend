@@ -42,6 +42,12 @@ class USER_UPDATE_ERROR extends UserError {
     }
 }
 
+class USERNAME_ALREADY_EXISTS extends UserError {
+    constructor() {
+        super('Username already exists', 409);
+    }
+}
+
 class EMAIL_ALREADY_EXISTS extends UserError {
     constructor() {
         super('Email already exists', 409);
@@ -65,6 +71,23 @@ class MISSING_USERS_IN_CITY extends UserError {
         super('No users found in this city', 404);
     }
 }
+class EMAIL_DOES_NOT_EXIST extends UserError {
+    constructor() {
+        super('Email does not exist', 404);
+    }
+}
+
+class INCORRECT_PASSWORD extends UserError {
+    constructor() {
+        super('Incorrect password', 400);
+    }
+}
+
+class PASSWORD_DOES_NOT_MATCH extends UserError {
+    constructor() {
+        super('Passwords do not match', 400);
+    }
+}
 
 export default {
     USER_NOT_FOUND,
@@ -73,8 +96,12 @@ export default {
     USER_INVALID_DATA,
     USER_DELETE_ERROR,
     USER_UPDATE_ERROR,
+    USERNAME_ALREADY_EXISTS,
     EMAIL_ALREADY_EXISTS,
     MISSING_PARAMETERS,
     MISSING_USERS_IN_COUNTRY,
-    MISSING_USERS_IN_CITY
+    MISSING_USERS_IN_CITY,
+    INCORRECT_PASSWORD,
+    EMAIL_DOES_NOT_EXIST,
+    PASSWORD_DOES_NOT_MATCH
 };
