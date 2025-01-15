@@ -6,10 +6,12 @@ import imageRouter from "./imageRouter.js";
 
 import authApiController from "../controller/auth/authApiController.js"
 
+import { isAuthenticated} from "../middlewares/authMiddleware.js";
+
 
 const router = Router();
 
-router.use("/users", userRouter)
+router.use("/users",isAuthenticated ,userRouter)
 router.use("/projects", projectRouter)
 router.use("/categories", categoryRouter);
 router.use("/images", imageRouter);

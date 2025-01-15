@@ -1,5 +1,4 @@
 import jwt from '../config/jwt.js';
-import userController from "../controller/userController/userController.js"
 
 async function isAuthenticated(req, res, next){
     const authorization = req.headers.authorization;
