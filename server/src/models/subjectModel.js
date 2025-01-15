@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const CategorySchema = new mongoose.Schema({
+const SubjectSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -19,6 +19,6 @@ const CategorySchema = new mongoose.Schema({
     timestamps: true,
 });
 
-const Category = mongoose.model('type', CategorySchema);
+const Subject = mongoose.model('subject', SubjectSchema);
 
-export default Category;
+export default Subject;
