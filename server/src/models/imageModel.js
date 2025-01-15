@@ -8,10 +8,6 @@ const ImageSchema = new mongoose.Schema({
     url: {
         type: String,
         required: true,
-    },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
     }
 });
 

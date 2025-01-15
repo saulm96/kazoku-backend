@@ -1,18 +1,32 @@
 import projectController from "./projectController.js";
 
 
-    async function createProject(req, res) {
-        try {
-            const { name, date, description, status, likes, url, owner, team_members } = req.body;
-            const project = await projectController.createProject(
-                name, date, description, status, likes, url, owner, team_members
-            );
-            res.status(201).json(project);
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ message: error.message });
-        }
+async function createProject(req, res) {
+    try {
+        const { name, date, description, status, likes, url, owner, team_members, category, images } = req.body;
+        
+              
+        const project = await projectController.createProject(
+            name, 
+            date, 
+            description, 
+            status, 
+            likes, 
+            url, 
+            owner,
+            team_members,
+            category,
+            images
+        );
+        
+        res.status(201).json(project);
+    } catch (error) {
+        console.error(error);
+        return res.status(error.status || 500).json({ 
+            message: error.message || "Internal server error" 
+        });
     }
+}
 
     async function getAllProjects(req, res) {
         try {

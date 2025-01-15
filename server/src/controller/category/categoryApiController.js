@@ -3,8 +3,8 @@ import categoryController from "./categoryController.js";
 
     async function createCategory(req, res) {
         try {
-            const { name, description } = req.body;
-            const category = await categoryController.createCategory(name, description);
+            const { name, description, status, types, styles, subjects } = req.body;
+            const category = await categoryController.createCategory(name, description, status, types, styles, subjects);
             res.status(201).json(category);
         } catch (error) {
             console.error(error);
