@@ -1,5 +1,5 @@
-import Category from "../../models/categoryModel.js";
-import categoryError from "../../helpers/categoryError.js";
+import Category from "../../models/typeModel.js";
+import categoryError from "../../helpers/errors/categoryError.js";
 
 async function createCategory(name, description, status) {
     try {

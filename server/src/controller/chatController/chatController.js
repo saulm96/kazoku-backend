@@ -1,5 +1,5 @@
 import Chat from "../../models/chatModel.js";
-import chatError from "../../helpers/chatError.js";
+import chatError from "../../helpers/errors/chatError.js";
 
 async function createChat(product, buyer, seller) {
     try {
