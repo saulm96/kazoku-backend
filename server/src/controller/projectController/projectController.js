@@ -1,61 +1,61 @@
 // projectController.js
 import Project from "../../models/projectModel.js";
+import Type from "../../models/typeModel.js";
+import Style from "../../models/styleModel.js";
+import Subject from "../../models/subjectModel.js";
+import User from "../../models/userModel.js";
+import Image from "../../models/imageModel.js";
 import projectError from "../../helpers/errors/projectError.js";
 import mongoose from "mongoose";
 
+
 async function createProject(name, date, description, status, likes, url, owner, team_members, styles, subjects, types, images) {
     try {
-        // Función de validación mejorada para IDs
-        const validateId = (id) => {
-            if (!id) return false;
-            const stringId = id.toString().trim();
-            return mongoose.Types.ObjectId.isValid(stringId);
-        };
+        console.log('\n=== Starting Project Creation ===');
+        console.log('Received styles:', styles);
 
-        const validateIdsArray = (arr, fieldName) => {
-            console.log(`Validating ${fieldName}:`, arr);
-            
-            if (!arr) return [];
-            if (!Array.isArray(arr)) {
-                arr = [arr]; // Convertir valor único en array
-            }
-            
-            // Filtrar valores válidos
-            const validIds = arr.filter(id => id && validateId(id));
-            console.log(`Valid ${fieldName} IDs:`, validIds);
-            
-            return validIds;
-        };
+        
+        console.log('\n=== Style Model Check ===');
+        console.log('Style model name:', Style.modelName);
+        console.log('Style model schema:', Style.schema.obj);
 
-        // Validar owner
-        if (owner && !validateId(owner)) {
-            throw new projectError.PROJECT_INVALID_DATA("Invalid owner ID format");
+        let styleId;
+        if (Array.isArray(styles)) {
+            styleId = styles[0];
+        } else {
+            styleId = styles;
         }
 
-        // Procesar y validar arrays
-        const validatedTeamMembers = validateIdsArray(team_members, 'team_members');
-        const validatedStyles = validateIdsArray(styles, 'styles');
-        const validatedTypes = validateIdsArray(types, 'types');
-        const validatedSubjects = validateIdsArray(subjects, 'subjects');
-        const validatedImages = validateIdsArray(images, 'images');
+        
+        console.log('\n=== Style Verification ===');
+        const styleDoc = await Style.findById(styleId);
+        console.log('Found style document:', styleDoc);
 
-        // Crear el proyecto con los datos validados
+        
+        const validTeamMembers = team_members ? (Array.isArray(team_members) ? team_members : [team_members]) : [];
+        const validStyles = styles ? (Array.isArray(styles) ? styles : [styles]) : [];
+        const validSubjects = subjects ? (Array.isArray(subjects) ? subjects : [subjects]) : [];
+        const validTypes = types ? (Array.isArray(types) ? types : [types]) : [];
+        const validImages = images ? (Array.isArray(images) ? images : [images]) : [];
+
+        
         const projectData = {
             name: name || '',
             date: date || new Date(),
             description: description || '',
             status: status || 'active',
-            likes: likes || 0,
+            likes: parseInt(likes) || 0,
             url: url || '',
-            owner: owner || null,
-            team_members: validatedTeamMembers,
-            styles: validatedStyles,
-            subjects: validatedSubjects,
-            types: validatedTypes,
-            images: validatedImages
+            owner: owner,
+            team_members: validTeamMembers.filter(Boolean),
+            styles: validStyles.filter(Boolean),
+            subjects: validSubjects.filter(Boolean),
+            types: validTypes.filter(Boolean),
+            images: validImages.filter(Boolean)
         };
 
-        console.log('Creating project with data:', projectData);
+        console.log('\n=== Project Data ===');
+        console.log('Project data to save:', JSON.stringify(projectData, null, 2));
 
         const project = await Project.create(projectData);
 
@@ -63,22 +63,61 @@ async function createProject(name, date, description, status, likes, url, owner,
             throw new projectError.PROJECT_CREATE_ERROR();
         }
 
-        // Populate all references
-        const populatedProject = await project.populate([
-            { path: 'owner', select: '-password' },
-            { path: 'team_members', select: '-password' },
-            { path: 'styles' },
-            { path: 'subjects' },
-            { path: 'types' },
-            { path: 'images' }
-        ]);
+        console.log('\n=== Project Created ===');
+        console.log('Project before population:', project);
 
-        console.log('Project created successfully:', populatedProject);
+        
+        console.log('\n=== Starting Population ===');
+        
+        const populatedProject = await Project.findById(project._id)
+            .populate({
+                path: 'styles',
+                model: Style,
+                options: { lean: true }
+            })
+            .populate({
+                path: 'owner',
+                select: '-password',
+                model: User
+            })
+            .populate({
+                path: 'team_members',
+                select: '-password',
+                model: User
+            })
+            .populate({
+                path: 'subjects',
+                model: Subject
+            })
+            .populate({
+                path: 'types',
+                model: Type
+            })
+            .populate({
+                path: 'images',
+                model: Image
+            });
+
+        console.log('\n=== Population Results ===');
+        console.log('Populated styles:', populatedProject.styles);
+
+        // Verificación adicional si los styles están vacíos
+        if (!populatedProject.styles.length) {
+            console.log('\n=== Style Population Debug ===');
+            const rawProject = await Project.findById(project._id).lean();
+            console.log('Raw project styles:', rawProject.styles);
+            
+            const styleCheck = await Style.find({
+                '_id': { $in: rawProject.styles }
+            });
+            console.log('Style documents found:', styleCheck);
+        }
 
         return populatedProject;
 
     } catch (error) {
-        console.error('Detailed error in createProject:', error);
+        console.error('\n=== Error in createProject ===');
+        console.error('Error details:', error);
         
         if (error.name === 'ValidationError') {
             throw new projectError.PROJECT_INVALID_DATA(error.message);
@@ -90,36 +129,68 @@ async function createProject(name, date, description, status, likes, url, owner,
             throw new projectError.PROJECT_INVALID_DATA('Duplicate key error');
         }
         
-        throw new projectError.PROJECT_CREATE_ERROR();
+        throw new projectError.PROJECT_CREATE_ERROR(error.message);
     }
 }
 
 async function getAllProjects(owner, category) {
     try {
+        console.log('\n=== Getting All Projects ===');
         const filter = {};
+        
         if (owner) {
             if (!mongoose.Types.ObjectId.isValid(owner)) {
-                throw new projectError.PROJECT_INVALID_DATA("Invalid owner ID format");
+                throw new projectError.PROJECT_INVALID_DATA("Invalid owner ID");
             }
             filter.owner = owner;
         }
-        if (category) filter.category = category;
+        
+        if (category) {
+            filter.category = category;
+        }
+
+        console.log('Using filter:', filter);
 
         const projects = await Project.find(filter)
-            .populate('owner', '-password')
-            .populate('team_members', '-password')
-            .populate('styles')
-            .populate('subjects')
-            .populate('types')
-            .populate('images');
+            .populate({
+                path: 'owner',
+                select: '-password',
+                model: User
+            })
+            .populate({
+                path: 'team_members',
+                select: '-password',
+                model: User
+            })
+            .populate({
+                path: 'styles',
+                model: Style
+            })
+            .populate({
+                path: 'subjects',
+                model: Subject
+            })
+            .populate({
+                path: 'types',
+                model: Type
+            })
+            .populate({
+                path: 'images',
+                model: Image
+            });
+
+        console.log(`Found ${projects.length} projects`);
 
         if (!projects.length) {
             throw new projectError.PROJECT_NOT_FOUND();
         }
 
         return projects;
+
     } catch (error) {
-        console.error('Error in getAllProjects:', error);
+        console.error('\n=== Error in getAllProjects ===');
+        console.error('Error details:', error);
+        
         if (error.name === 'PROJECT_NOT_FOUND') {
             throw error;
         }
@@ -129,25 +200,53 @@ async function getAllProjects(owner, category) {
 
 async function getProject(id) {
     try {
+        console.log('\n=== Getting Project ===');
+        console.log('Project ID:', id);
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new projectError.PROJECT_INVALID_DATA("Invalid project ID format");
         }
 
         const project = await Project.findById(id)
-            .populate('owner', '-password')
-            .populate('team_members', '-password')
-            .populate('styles')
-            .populate('subjects')
-            .populate('types')
-            .populate('images');
+            .populate({
+                path: 'owner',
+                select: '-password',
+                model: User
+            })
+            .populate({
+                path: 'team_members',
+                select: '-password',
+                model: User
+            })
+            .populate({
+                path: 'styles',
+                model: Style
+            })
+            .populate({
+                path: 'subjects',
+                model: Subject
+            })
+            .populate({
+                path: 'types',
+                model: Type
+            })
+            .populate({
+                path: 'images',
+                model: Image
+            });
 
         if (!project) {
+            console.log('Project not found');
             throw new projectError.PROJECT_NOT_FOUND();
         }
 
+        console.log('Project found and populated successfully');
         return project;
+
     } catch (error) {
-        console.error('Error in getProject:', error);
+        console.error('\n=== Error in getProject ===');
+        console.error('Error details:', error);
+        
         if (error.name === 'PROJECT_NOT_FOUND' || error.name === 'PROJECT_INVALID_DATA') {
             throw error;
         }
@@ -157,17 +256,27 @@ async function getProject(id) {
 
 async function deleteProject(id) {
     try {
+        console.log('\n=== Deleting Project ===');
+        console.log('Project ID to delete:', id);
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new projectError.PROJECT_INVALID_DATA("Invalid project ID format");
         }
 
         const project = await Project.findByIdAndDelete(id);
+        
         if (!project) {
+            console.log('Project not found for deletion');
             throw new projectError.PROJECT_NOT_FOUND();
         }
+
+        console.log('Project deleted successfully');
         return project;
+
     } catch (error) {
-        console.error('Error in deleteProject:', error);
+        console.error('\n=== Error in deleteProject ===');
+        console.error('Error details:', error);
+        
         if (error.name === 'PROJECT_NOT_FOUND' || error.name === 'PROJECT_INVALID_DATA') {
             throw error;
         }
