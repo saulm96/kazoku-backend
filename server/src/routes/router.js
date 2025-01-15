@@ -1,8 +1,8 @@
 import { Router } from "express";
 
-import projectApiController  from "../controller/project/projectApiController.js";
-import categoryApiController from "../controller/category/categoryApiController.js";
-import imageApiController from "../controller/images/imageApiController.js";
+import projectApiController  from "../controller/projectController/projectApiController.js";
+import categoryApiController from "../controller/categoryController/categoryApiController.js";
+import imageApiController from "../controller/imagesController/imageApiController.js";
 import userApiController from "../controller/userController/userApiController.js";
 
 
