@@ -30,9 +30,17 @@ const ProjectSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    team_members: [{
+    team_members:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+    }],
+    category: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+    }],
+    images: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Image',
     }]
 }, {
     timestamps: true,

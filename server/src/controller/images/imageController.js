@@ -1,9 +1,9 @@
 import Image from "../../models/imageModel.js";
 import imageError from "../../helpers/imageError.js";
 
-async function createImage(name, url, owner) {
+async function createImage(name, url) {
     try {
-        const image = await Image.create({ name, url, owner });
+        const image = await Image.create({ name, url});
         if (!image) {
             throw new imageError.IMAGE_CREATE_ERROR();
         }
@@ -18,18 +18,14 @@ async function createImage(name, url, owner) {
 
 async function getAllImages() {
     try {
-        const images = await Image.find().populate('owner');
-        if (!images.length) {
-            throw new imageError.IMAGE_NOT_FOUND();
-        }
-        return images;
+        const images = await Image.find();
+        return images; // Simply return the results, even if empty
     } catch (error) {
-        if (error.name === 'IMAGE_NOT_FOUND') {
-            throw error;
-        }
-        throw new imageError.IMAGE_LIST_ERROR();
+        console.error("Error getting images:", error);
+        throw new imageError.IMAGE_LIST_ERROR("Failed to retrieve images");
     }
 }
+
 
 async function getImage(id) {
     try {

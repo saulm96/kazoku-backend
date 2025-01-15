@@ -5,10 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "type": "start",
+    "init-db": "node database/scripts/init-db.js",
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "npm run init-db && npm run dev"
   },
   "repository": {
     "type": "git",

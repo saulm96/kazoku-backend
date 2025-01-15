@@ -1,9 +1,9 @@
 import Category from "../../models/categoryModel.js";
 import categoryError from "../../helpers/categoryError.js";
 
-async function createCategory(name, description) {
+async function createCategory(name, description, status) {
     try {
-        const category = await Category.create({ name, description });
+        const category = await Category.create({ name, description, status, types, styles, subjects });
         if (!category) {
             throw new categoryError.CATEGORY_CREATE_ERROR();
         }

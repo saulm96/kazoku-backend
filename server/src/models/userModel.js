@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -25,7 +26,7 @@ const userSchema = new mongoose.Schema({
     telephone: {
         type: String,
         },
-    social_media: [{
+    web: [{
         type: String,
         validate: {
             validator: function (v) {
@@ -34,6 +35,34 @@ const userSchema = new mongoose.Schema({
             message: props => `${props.value} is not a valid URL`
         }
     }],
+    instagram: [{
+        type: String,
+        validate: {
+            validator: function (v) {
+                return /^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,})$/.test(v);
+            },
+            message: props => `${props.value} is not a valid URL`
+        }
+    }],
+    linkedin: [{
+        type: String,
+        validate: {
+            validator: function (v) {
+                return /^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,})$/.test(v);
+            },
+            message: props => `${props.value} is not a valid URL`
+        }
+    }],
+    github: [{
+        type: String,
+        validate: {
+            validator: function (v) {
+                return /^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,})$/.test(v);
+            },
+            message: props => `${props.value} is not a valid URL`
+        }
+    }],
+
     description: {
         type: String,
     },

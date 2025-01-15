@@ -2,8 +2,8 @@ import imageController from "./imageController.js";
 
 async function createImage(req, res) {
     try {
-        const { name, url, owner } = req.body;
-        const image = await imageController.createImage(name, url, owner);
+        const { name, url } = req.body;
+        const image = await imageController.createImage(name, url);
         res.status(201).json(image);
     } catch (error) {
         console.error(error);
@@ -14,12 +14,17 @@ async function createImage(req, res) {
 async function getAllImages(req, res) {
     try {
         const images = await imageController.getAllImages();
-        res.status(200).json(images);
+        // Return empty array if no images found (not an error)
+        res.status(200).json(images || []);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "server internal error" });
+        console.error("Error in getAllImages:", error);
+        return res.status(500).json({ 
+            message: "Failed to retrieve images",
+            error: error.message 
+        });
     }
 }
+
 
 async function getImage(req, res) {
     try {
