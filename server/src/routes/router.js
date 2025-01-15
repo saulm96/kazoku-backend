@@ -5,6 +5,7 @@ import categoryApiController from "../controller/category/categoryApiController.
 import imageApiController from "../controller/images/imageApiController.js";
 import userApiController from "../controller/userController/userApiController.js";
 
+
 const router = Router();
 
 router.get("/projects", projectApiController.getAllProjects);
@@ -30,6 +31,8 @@ router.get("/users/:id", userApiController.getUserById);
 router.get("/users/:country", userApiController.getUserByCountry);
 router.put("/users/:id", userApiController.updateUser);
 router.delete("/users/:id", userApiController.deleteUser);
+
+
 
 
 
