@@ -18,8 +18,4 @@ router.use("/images", imageRouter);
 router.post("/login", authApiController.login);
 router.post("/register", authApiController.register);
 
-
-
-
-
 export default router;
