@@ -3,11 +3,11 @@ import imageApiController from "../controller/imagesController/imageApiControlle
 
 const router = Router();
 
-router.get("/images", imageApiController.getAllImages);
-router.post("/images", imageApiController.createImage);
-router.get("/images/:id", imageApiController.getImage);
-router.put("/images/:id", imageApiController.updateImage);
-router.delete("/images/:id", imageApiController.deleteImage);
+router.get("/", imageApiController.getAllImages);
+router.post("/", imageApiController.createImage);
+router.get("/:id", imageApiController.getImage);
+router.put("/:id", imageApiController.updateImage);
+router.delete("/:id", imageApiController.deleteImage);
 
 export default router;
 
