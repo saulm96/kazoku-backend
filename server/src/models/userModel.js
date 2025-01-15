@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+const urlValidator = {
+    validator: function(v) {
+        return /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-\.\/]*)*\/?$/.test(v);
+    },
+    message: props => `${props.value} is not a valid URL`
+};
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -25,44 +31,23 @@ const userSchema = new mongoose.Schema({
     },
     telephone: {
         type: String,
-        },
+    },
     web: [{
         type: String,
-        validate: {
-            validator: function (v) {
-                return /^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,})$/.test(v);
-            },
-            message: props => `${props.value} is not a valid URL`
-        }
+        validate: urlValidator
     }],
     instagram: [{
         type: String,
-        validate: {
-            validator: function (v) {
-                return /^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,})$/.test(v);
-            },
-            message: props => `${props.value} is not a valid URL`
-        }
+        validate: urlValidator
     }],
     linkedin: [{
         type: String,
-        validate: {
-            validator: function (v) {
-                return /^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,})$/.test(v);
-            },
-            message: props => `${props.value} is not a valid URL`
-        }
+        validate: urlValidator
     }],
     github: [{
         type: String,
-        validate: {
-            validator: function (v) {
-                return /^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,})$/.test(v);
-            },
-            message: props => `${props.value} is not a valid URL`
-        }
+        validate: urlValidator
     }],
-
     description: {
         type: String,
     },
@@ -75,13 +60,13 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    country:{
+    country: {
         type: String,
     },
-    city:{
+    city: {
         type: String,
     },
-    isActivated:{
+    isActivated: {
         type: Boolean,
         default: true,
     },
