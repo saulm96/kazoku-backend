@@ -1,5 +1,5 @@
 import { Router } from "express";
-import imageApiController from "../controller/images/imageApiController.js";
+import imageApiController from "../controller/imagesController/imageApiController.js";
 
 const router = Router();
 
