@@ -16,7 +16,7 @@ async function isAuthenticated(req, res, next){
 }
 
 async function isAdmin(req, res, next){
-    const authorizatin = req.headers.authorization;
+    const authorization = req.headers.authorization;
     if(!authorization){
         return res.status(401).json({message: "Token is required"});
     }
