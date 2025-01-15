@@ -1,5 +1,5 @@
 import Style from "../../models/subjectModel.js";
-import styleError from "../../helpers/styleError.js";
+import styleError from "../../helpers/errors/styleError.js";
 
 async function createStyle(name, description) {
     try {

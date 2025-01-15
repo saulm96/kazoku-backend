@@ -1,5 +1,5 @@
 import Image from "../../models/imageModel.js";
-import imageError from "../../helpers/imageError.js";
+import imageError from "../../helpers/errors/imageError.js";
 
 async function createImage(name, url) {
     try {

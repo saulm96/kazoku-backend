@@ -37,17 +37,17 @@ const ProjectSchema = new mongoose.Schema({
     }],
     types: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'type',
+        ref: 'Type',
         required: true,
     }],
     styles: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'style',
+        ref: 'Style',
         required: true,
     }],
     subjects: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'subject',
+        ref: 'Subject',
         required: true,
     }],
     images: [{

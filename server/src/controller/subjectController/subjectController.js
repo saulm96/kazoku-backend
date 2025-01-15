@@ -1,5 +1,5 @@
 import Subject from "../../models/subjectModel.js";
-import subjectError from "../../helpers/subjectError.js";
+import subjectError from "../../helpers/errors/subjectError.js";
 
 async function createSubject(name, description) {
     try {

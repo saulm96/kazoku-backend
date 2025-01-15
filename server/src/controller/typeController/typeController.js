@@ -1,5 +1,5 @@
 import Type from "../../models/typeModel.js";
-import typeError from "../../helpers/typeError.js";
+import typeError from "../../helpers/errors/typeError.js";
 
 async function createType(name, description) {
     try {
