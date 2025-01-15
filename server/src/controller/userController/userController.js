@@ -34,9 +34,6 @@ async function getUserById(id) {
 async function getUserByEmail(email) {
     try {
         const user = await User.findOne({ email });
-        if (!user) {
-            throw new userError.USER_NOT_FOUND();
-        }
         return user;
     } catch (error) {
         if (error.name === 'USER_NOT_FOUND') {
@@ -48,8 +45,13 @@ async function getUserByEmail(email) {
 
 async function getUsersByCountry(country) {
     try {
-        const users = await User.find({ country });
-        if (!users.length) {
+        if (!country) {
+            throw new userError.MISSING_PARAMETERS();
+        }
+        const users = await User.find({
+            country: { $regex: new RegExp(`^${country}$`, 'i') }
+        });
+        if (!users || !users.length) {
             throw new userError.MISSING_USERS_IN_COUNTRY();
         }
         return users;
@@ -63,8 +65,14 @@ async function getUsersByCountry(country) {
 
 async function getUsersByCity(city) {
     try {
-        const users = await User.find({ city });
-        if (!users.length) {
+        if (!city) {
+            throw new userError.MISSING_PARAMETERS();
+        }
+
+        const users = await User.find({
+            city: { $regex: new RegExp(`^${city}$`, 'i') }
+        });
+        if (!users || !users.length) {
             throw new userError.MISSING_USERS_IN_CITY();
         }
         return users;
@@ -78,98 +86,57 @@ async function getUsersByCity(city) {
 
 async function createUser(userData) {
     try {
-        
-        const { username, email, password } = userData;
-
-        const requiredFields = [
-            { field: 'username', value: username },
-            { field: 'email', value: email },
-            { field: 'password', value: password }
-        ];
-
-        const missingFields = requiredFields
-            .filter(field => !field.value)
-            .map(field => field.field);
-
-        if (missingFields.length > 0) {
-            throw new userError.MISSING_PARAMETERS(
-                `Missing required fields: ${missingFields.join(', ')}`
-            );
+        // 1. Validate required fields
+        if (!userData.username || !userData.email || !userData.password) {
+            throw new userError.MISSING_PARAMETERS();
         }
 
-        
-        if (userData.social_media && !Array.isArray(userData.social_media)) {
-            userData.social_media = [userData.social_media];
-        }
-
-        
-        const existingUser = await User.findOne({
-            $or: [
-                { email: email },
-                { username: username }
-            ]
-        });
-
+        // 2. Check if user exists
+        const existingUser = await checkExistingUser(userData.email, userData.username);
         if (existingUser) {
-            if (existingUser.email === email) {
-                throw new userError.EMAIL_ALREADY_EXISTS();
-            }
-            throw new userError.USER_INVALID_DATA('Username already exists');
+            throw new userError.USER_INVALID_DATA();
         }
 
-        
-        const user = await User.create(userData);
+        // 3. Create user with defaults for optional fields
+        const userToCreate = {
+            username: userData.username,
+            email: userData.email,
+            password: userData.password,
+            name: userData.name || '',
+            lastname: userData.lastname || '',
+            social_media: userData.social_media || [],
+            description: userData.description || '',
+            role: 'user',
+            privacy: true,
+            country: userData.country || '',
+            city: userData.city || '',
+            isActivated: true,
+            createdAt: new Date()
+        };
+
+        const user = new User(userToCreate);
+        await user.save();
         return user;
 
-    } catch (error) {
-        if (error.name === 'ValidationError') {
-            throw new userError.USER_INVALID_DATA(error.message);
-        }
-        throw error;
+    } catch(error) {
+        console.error('Create user error:', error);
+        throw new userError.USER_CREATE_ERROR();
     }
 }
 
 async function updateUser(id, userData) {
     try {
-        
-        if (userData.email || userData.username) {
-            const existingUser = await User.findOne({
-                _id: { $ne: id },
-                $or: [
-                    { email: userData.email },
-                    { username: userData.username }
-                ]
-            });
-
-            if (existingUser) {
-                if (existingUser.email === userData.email) {
-                    throw new userError.EMAIL_ALREADY_EXISTS();
-                }
-                throw new userError.USER_INVALID_DATA('Username already exists');
-            }
-        }
-
-        
-        if (userData.social_media && !Array.isArray(userData.social_media)) {
-            userData.social_media = [userData.social_media];
-        }
-
         const updatedUser = await User.findByIdAndUpdate(
             id,
-            userData,
+            { $set: userData },
             { new: true, runValidators: true }
         );
-
         if (!updatedUser) {
             throw new userError.USER_NOT_FOUND();
         }
-
         return updatedUser;
     } catch (error) {
-        if (error.name === 'ValidationError') {
-            throw new userError.USER_INVALID_DATA(error.message);
-        }
-        throw error;
+        throw new userError.USER_UPDATE_ERROR();
     }
 }
 
@@ -187,6 +154,16 @@ async function deleteUser(id) {
         throw new userError.USER_DELETE_ERROR();
     }
 }
+async function checkExistingUser(email, username) {
+    // Assuming you're using a database model like User
+    const user = await User.findOne({
+        $or: [
+            { email: email },
+            { username: username }
+        ]
+    });
+    return user;
+}
 
 export const functions = {
     getAllUsers,
@@ -196,7 +173,8 @@ export const functions = {
     getUsersByCity,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    checkExistingUser
 };
 
 export default functions;
