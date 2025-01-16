@@ -99,12 +99,15 @@ async function createUser(userData) {
 
         // 3. Create user with defaults for optional fields
         const userToCreate = {
+            name: userData.name || '',
+            lastname: userData.lastname || '',
             username: userData.username,
             email: userData.email,
             password: userData.password,
-            name: userData.name || '',
-            lastname: userData.lastname || '',
-            social_media: userData.social_media || [],
+            web: userData.web || [],
+            instagram: userData.instagram || [],
+            linkedin: userData.linkedin || [],
+            github: userData.github || [],
             description: userData.description || '',
             role: 'user',
             privacy: true,
