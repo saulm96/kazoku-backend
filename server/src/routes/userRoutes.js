@@ -10,7 +10,7 @@ router.get("/city", userApiController.getUserByCity);
 router.get("/country", userApiController.getUserByCountry);
 router.get("/:id", userApiController.getUserById);
 
-router.put("/:id", userApiController.updateUser);
+router.put("/:id", isAdminOrSelfUser,userApiController.updateUser);
 router.delete("/:id",isAdminOrSelfUser, userApiController.deleteUser);
 
 export default router;

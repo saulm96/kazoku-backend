@@ -44,6 +44,7 @@ async function isAdminOrSelfUser(req, res, next){
     
     const id = parseInt(req.params.id);
     if((!verified.role || verified.role !== 'admin') && id != verified._id){
+        console.log(verified._id);
         return res.status(401).json({message: "Unauthorized access"});
     }
 
