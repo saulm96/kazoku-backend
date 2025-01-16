@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const urlValidator = {
-    validator: function(v) {
+    validator: function (v) {
         return /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-\.\/]*)*\/?$/.test(v);
     },
     message: props => `${props.value} is not a valid URL`
@@ -32,7 +32,12 @@ const userSchema = new mongoose.Schema({
     telephone: {
         type: String,
     },
-    web: [{
+    specialization: {
+        type: String,
+        enum: ["Frontend", "Backend", "Fullstack", "UX/UI", "Other", "None"],
+        default: "None",
+    },
+    website: [{
         type: String,
         validate: urlValidator
     }],
@@ -51,11 +56,6 @@ const userSchema = new mongoose.Schema({
     description: {
         type: String,
     },
-    role: {
-        type: String,
-        enum: ['user', 'admin'],
-        default: 'user',
-    },
     privacy: {
         type: Boolean,
         default: false,
@@ -66,9 +66,22 @@ const userSchema = new mongoose.Schema({
     city: {
         type: String,
     },
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
     isActivated: {
         type: Boolean,
         default: true,
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user',
     },
     createdAt: {
         type: Date,

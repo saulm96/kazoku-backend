@@ -104,16 +104,18 @@ async function createUser(userData) {
             username: userData.username,
             email: userData.email,
             password: userData.password,
-            web: userData.web || [],
-            instagram: userData.instagram || [],
-            linkedin: userData.linkedin || [],
+            telephone: userData.telephone || '',
+            specialization: userData.specialization || 'None',
+            website: userData.website || [],
             github: userData.github || [],
+            linkedin: userData.linkedin || [],
+            instagram: userData.instagram || [],
             description: userData.description || '',
-            role: 'user',
             privacy: true,
             country: userData.country || '',
             city: userData.city || '',
             isActivated: true,
+            role: 'user',
             createdAt: new Date()
         };
 
