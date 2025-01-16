@@ -400,7 +400,27 @@ const users = [
     isActivated: true,
     createdAt: "2024-01-01T00:00:00.000Z",
     __v: 0
-  }
+  },
+  {
+    name: "Saul",
+    lastname: "Mora",
+    username: "world-distroyer",
+    email: "saul@gmail.com",
+    password: "$2a$10$Pr40CabZ1m6W8D939Bz3rODad2XW1Jd0DjsYegRCNhy0xBdejJnMm",
+    web: [],
+    instagram: [],
+    linkedin: [],
+    github: [],
+    description: "",
+    role: "admin",
+    privacy: true,
+    country: "Japan",
+    city: "Tokyo",
+    isActivated: true,
+    createdAt: "2025-01-16T11:39:08.234Z",
+    _id: "6788efdce53f5c9fa687322b",
+    __v: 0
+}
 ];
 
 const projects = [

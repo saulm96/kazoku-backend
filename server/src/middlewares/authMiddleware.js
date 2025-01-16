@@ -23,7 +23,7 @@ async function isAdmin(req, res, next){
     const token = authorization.replace("Bearer ", "");
     const verified = jwt.verify(token);
 
-    if(verified.error) return res.status(401),json({message: "Invcorrect jwt token provided!"});ç
+    if(verified.error) return res.status(401),json({message: "Invcorrect jwt token provided!"});
 
     if(verified.role !== 'admin' || !verified.role) return res.status(401).json({message: "Unauthorized access"});
 

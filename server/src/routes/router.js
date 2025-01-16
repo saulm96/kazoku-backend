@@ -9,12 +9,14 @@ import typeRouter from "./typeRouter.js";
 
 import authApiController from "../controller/auth/authApiController.js"
 
-import { isAuthenticated} from "../middlewares/authMiddleware.js";
 
 
 const router = Router();
 
-router.use("/users",isAuthenticated ,userRouter)
+router.post("/login", authApiController.login);
+router.post("/register", authApiController.register);
+
+router.use("/users",userRouter)
 router.use("/projects", projectRouter)
 router.use("/images", imageRouter);
 router.use("/chats", chatRouter);
@@ -23,8 +25,5 @@ router.use("/subjects", subjectRouter);
 router.use("/types", typeRouter);
 
 
-
-router.post("/login", authApiController.login);
-router.post("/register", authApiController.register);
 
 export default router;
