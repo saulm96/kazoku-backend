@@ -3,22 +3,39 @@ import userError from "../../helpers/errors/userError.js";
 
 async function getAllUsers() {
     try {
-        const users = await User.find();
-        if (!users.length) {
-            throw new userError.USER_NOT_FOUND();
+        const users = await User.find()
+            .populate({
+                path: 'following',
+                select: ' _id username specialization',
+                model: User
+            })
+            .populate({
+                path: 'followers',
+                select: '_id username specialization',
+                model: User
+            });
+        if (!users || !users.length) {
+            throw new userError.USER_LIST_ERROR();
         }
         return users;
     } catch (error) {
-        if (error.name === 'USER_NOT_FOUND') {
-            throw error;
-        }
         throw new userError.USER_LIST_ERROR();
     }
 }
 
 async function getUserById(id) {
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(id)
+        .populate({
+            path: 'following',
+            select: ' _id username specialization',
+            model: User
+        })
+        .populate({
+            path: 'followers',
+            select: '_id username specialization',
+            model: User
+        });
         if (!user) {
             throw new userError.USER_NOT_FOUND();
         }
@@ -123,7 +140,7 @@ async function createUser(userData) {
         await user.save();
         return user;
 
-    } catch(error) {
+    } catch (error) {
         console.error('Create user error:', error);
         throw new userError.USER_CREATE_ERROR();
     }
@@ -169,6 +186,8 @@ async function checkExistingUser(email, username) {
     });
     return user;
 }
+
+//Function to add other users id, username and specialization to my following list and my username, id and specialization to their followers list
 
 export const functions = {
     getAllUsers,
