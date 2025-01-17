@@ -2,8 +2,8 @@ import chatController from "./chatController.js";
 
 async function createChat(req, res) {
     try {
-        const { product, buyer, seller } = req.body;
-        const chat = await chatController.createChat(product, buyer, seller);
+        const { project, owner, client } = req.body;
+        const chat = await chatController.createChat(project, owner, client);
         return res.status(201).json(chat);
     } catch (error) {
         console.error(error);

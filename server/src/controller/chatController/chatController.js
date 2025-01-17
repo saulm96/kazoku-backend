@@ -1,12 +1,12 @@
 import Chat from "../../models/chatModel.js";
 import chatError from "../../helpers/errors/chatError.js";
 
-async function createChat(product, buyer, seller) {
+async function createChat(project, owner, client) {
     try {
         const chat = await Chat.create({
-            product,
-            buyer,
-            seller
+            project,
+            owner,
+            client
         });
         if (!chat) {
             throw new chatError.CHAT_CREATE_ERROR();
@@ -39,8 +39,8 @@ async function getAllChatsByUser(userId) {
     try {
         const chats = await Chat.find({
             $or: [
-                { buyer: userId },
-                { seller: userId }
+                { owner: userId },
+                { client: userId }
             ]
         });
         if (!chats.length) {

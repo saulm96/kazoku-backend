@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
 const ChatSchema = new mongoose.Schema({
-    product: {
+    project: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
+        ref: 'Project',
     },
-    buyer: {
+    owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    seller: {
+    client: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
