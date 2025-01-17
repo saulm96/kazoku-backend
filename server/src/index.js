@@ -11,6 +11,13 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 const app = express();
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 const httpServer = createServer(app);
 
 // Inicializar Socket.IO
