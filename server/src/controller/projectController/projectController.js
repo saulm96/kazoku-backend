@@ -466,6 +466,7 @@ export const functions = {
     deleteProject,
     removeProjectImage,
     cleanupTempImages
+    
 }
 
 export default functions;
