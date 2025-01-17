@@ -5,7 +5,6 @@ import multer from 'multer';
 
 async function createProject(req, res) {
     try {
-        // Aquí verificamos el contenido del cuerpo de la solicitud
         console.log('Received request body:', req.body);
         console.log('Received files (if any):', req.files);
 
@@ -23,10 +22,8 @@ async function createProject(req, res) {
             types 
         } = req.body;
 
-        // req.files.images contiene las imágenes subidas por multer
         const tempImages = req.files?.images || [];
         
-        // Llamamos al controlador para crear el proyecto
         const project = await projectController.createProject(
             name, 
             date, 
@@ -53,23 +50,22 @@ async function createProject(req, res) {
 
 async function createOwnProject(req, res) {
     try {
-        console.log('Creating project for authenticated user');
-        console.log('Request user:', req.user);
-        
+        console.log('=== Creating project for authenticated user ===');
+        console.log('Auth header:', req.headers.authorization);
+        console.log('User from middleware:', req.user);
         
         if (!req.user || !req.user._id) {
+            console.log('No authenticated user found');
             return res.status(401).json({ 
                 message: "Authentication required" 
             });
         }
 
-        // Extraemos los datos del body, excepto owner que lo tomamos del usuario autenticado
         const { 
             name, 
             date, 
             description, 
             status, 
-            likes, 
             url,
             team_members, 
             styles, 
@@ -77,18 +73,18 @@ async function createOwnProject(req, res) {
             types 
         } = req.body;
 
-        // Las imágenes vienen en req.files gracias a multer
         const tempImages = req.files?.images || [];
         
+        console.log('Creating project with owner:', req.user._id);
         
         const project = await projectController.createProject(
             name, 
             date, 
             description, 
             status, 
-            likes, 
+            0, // likes comienza en 0
             url, 
-            req.user._id, 
+            req.user._id, // ID del usuario autenticado
             team_members,
             styles,
             subjects,
@@ -208,10 +204,8 @@ async function removeProjectImage(req, res) {
     }
 }
 
-// Middleware de Multer para la subida de múltiples archivos
 const uploadMiddleware = upload;
 
-// Función para manejar errores de Multer
 const handleMulterError = (error, req, res, next) => {
     if (error instanceof multer.MulterError) {
         if (error.code === 'LIMIT_FILE_COUNT') {
@@ -227,14 +221,14 @@ const handleMulterError = (error, req, res, next) => {
 
 export const functions = {
     createProject,
+    createOwnProject,
     getAllProjects,
     getProject,
     updateProject,
     deleteProject,
     removeProjectImage,
     uploadMiddleware,
-    handleMulterError,
-    createOwnProject
+    handleMulterError
 }
 
 export default functions;
