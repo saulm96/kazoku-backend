@@ -41,18 +41,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         validate: urlValidator
     }],
-    instagram: [{
+    instagram: {
         type: String,
         validate: urlValidator
-    }],
-    linkedin: [{
+    },
+    linkedin: {
         type: String,
         validate: urlValidator
-    }],
-    github: [{
+    },
+    github: {
         type: String,
         validate: urlValidator
-    }],
+    },
     description: {
         type: String,
     },

@@ -51,6 +51,60 @@ async function createProject(req, res) {
     }
 }
 
+async function createOwnProject(req, res) {
+    try {
+        console.log('Creating project for authenticated user');
+        console.log('Request user:', req.user);
+        
+        
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ 
+                message: "Authentication required" 
+            });
+        }
+
+        // Extraemos los datos del body, excepto owner que lo tomamos del usuario autenticado
+        const { 
+            name, 
+            date, 
+            description, 
+            status, 
+            likes, 
+            url,
+            team_members, 
+            styles, 
+            subjects, 
+            types 
+        } = req.body;
+
+        // Las imágenes vienen en req.files gracias a multer
+        const tempImages = req.files?.images || [];
+        
+        
+        const project = await projectController.createProject(
+            name, 
+            date, 
+            description, 
+            status, 
+            likes, 
+            url, 
+            req.user._id, 
+            team_members,
+            styles,
+            subjects,
+            types,
+            tempImages
+        );
+        
+        res.status(201).json(project);
+    } catch (error) {
+        console.error('Error in createOwnProject API:', error);
+        return res.status(error.status || 500).json({ 
+            message: error.message || "Internal server error" 
+        });
+    }
+}
+
 async function getAllProjects(req, res) {
     try {
         const {owner, category} = req.query;
@@ -179,7 +233,8 @@ export const functions = {
     deleteProject,
     removeProjectImage,
     uploadMiddleware,
-    handleMulterError
+    handleMulterError,
+    createOwnProject
 }
 
 export default functions;
