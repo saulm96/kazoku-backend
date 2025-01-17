@@ -41,21 +41,20 @@ const userSchema = new mongoose.Schema({
     },
     website: [{
         type: String,
-        validate: urlValidator
+        validate: urlValidator,
     }],
-    instagram: [{
+    instagram: {
+        type: String,
+        validate: urlValidator
+    },
+    linkedin: {
         type: String,
         validate: urlValidator
     }],
-    linkedin: [{
+    github: {
         type: String,
         validate: urlValidator
-    }],
-    github: 
-        {
-            type: String,
-            validate: urlValidator
-        },
+    },
     description: {
         type: String,
     },

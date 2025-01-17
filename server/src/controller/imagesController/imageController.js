@@ -1,14 +1,34 @@
+// controllers/imageController.js
 import Image from "../../models/imageModel.js";
 import imageError from "../../helpers/errors/imageError.js";
+import fs from 'fs';
+import path from 'path';
 
-async function createImage(name, url) {
+async function createImage(name, projectId, file) {
     try {
-        const image = await Image.create({ name, url});
+        // La imagen ya está en la carpeta correcta, solo necesitamos crear la URL relativa
+        const fileUrl = path.join('archives', projectId, file.filename);
+        
+        const image = await Image.create({
+            name,
+            url: fileUrl
+        });
+
         if (!image) {
+            // Si falla la creación, eliminar el archivo
+            if (fs.existsSync(file.path)) {
+                fs.unlinkSync(file.path);
+            }
             throw new imageError.IMAGE_CREATE_ERROR();
         }
+        
         return image;
     } catch (error) {
+        // Asegurarse de eliminar el archivo si algo falla
+        if (file && file.path && fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+        }
+
         if (error.name === 'ValidationError') {
             throw new imageError.IMAGE_INVALID_DATA(error.message);
         }
@@ -19,17 +39,16 @@ async function createImage(name, url) {
 async function getAllImages() {
     try {
         const images = await Image.find();
-        return images; // Simply return the results, even if empty
+        return images;
     } catch (error) {
         console.error("Error getting images:", error);
         throw new imageError.IMAGE_LIST_ERROR("Failed to retrieve images");
     }
 }
 
-
 async function getImage(id) {
     try {
-        const image = await Image.findById(id).populate('owner');
+        const image = await Image.findById(id);
         if (!image) {
             throw new imageError.IMAGE_NOT_FOUND();
         }
@@ -42,34 +61,22 @@ async function getImage(id) {
     }
 }
 
-async function updateImage(id, name, url) {
-    try {
-        const image = await Image.findByIdAndUpdate(
-            id, 
-            { name, url },
-            { new: true }
-        ).populate('owner');
-        if (!image) {
-            throw new imageError.IMAGE_NOT_FOUND();
-        }
-        return image;
-    } catch (error) {
-        if (error.name === 'IMAGE_NOT_FOUND') {
-            throw error;
-        }
-        if (error.name === 'ValidationError') {
-            throw new imageError.IMAGE_INVALID_DATA(error.message);
-        }
-        throw new imageError.IMAGE_UPDATE_ERROR();
-    }
-}
-
 async function deleteImage(id) {
     try {
-        const image = await Image.findByIdAndDelete(id);
+        const image = await Image.findById(id);
         if (!image) {
             throw new imageError.IMAGE_NOT_FOUND();
         }
+
+        // Eliminar el archivo físico
+        const filePath = path.join('server/database', image.url);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+
+        // Eliminar el registro de la base de datos
+        await Image.findByIdAndDelete(id);
+
         return image;
     } catch (error) {
         if (error.name === 'IMAGE_NOT_FOUND') {
@@ -79,12 +86,29 @@ async function deleteImage(id) {
     }
 }
 
+// Función auxiliar para limpiar imágenes temporales
+async function cleanupTempImages() {
+    const tempDir = 'server/database/archives/temp';
+    if (fs.existsSync(tempDir)) {
+        const files = fs.readdirSync(tempDir);
+        const oneHourAgo = Date.now() - (60 * 60 * 1000);
+
+        files.forEach(file => {
+            const filePath = path.join(tempDir, file);
+            const stats = fs.statSync(filePath);
+            if (stats.mtimeMs < oneHourAgo) {
+                fs.unlinkSync(filePath);
+            }
+        });
+    }
+}
+
 export const functions = {
     createImage,
     getAllImages,
     getImage,
-    updateImage,
-    deleteImage
+    deleteImage,
+    cleanupTempImages
 }
 
 export default functions;
