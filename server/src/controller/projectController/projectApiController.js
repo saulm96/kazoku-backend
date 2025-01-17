@@ -63,7 +63,7 @@ async function createOwnProject(req, res) {
             });
         }
 
-        // Extraemos los datos del body, excepto owner que lo tomamos del usuario autenticado
+       
         const { 
             name, 
             date, 
@@ -77,7 +77,7 @@ async function createOwnProject(req, res) {
             types 
         } = req.body;
 
-        // Las imágenes vienen en req.files gracias a multer
+        
         const tempImages = req.files?.images || [];
         
         
