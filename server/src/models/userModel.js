@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
     linkedin: {
         type: String,
         validate: urlValidator
-    }],
+    },
     github: {
         type: String,
         validate: urlValidator
