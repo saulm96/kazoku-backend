@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 
 const urlValidator = {
     validator: function (v) {
+        if(v === "") return true;
+        
         return /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-\.\/]*)*\/?$/.test(v);
     },
     message: props => `${props.value} is not a valid URL`
@@ -39,7 +41,7 @@ const userSchema = new mongoose.Schema({
     },
     website: [{
         type: String,
-        validate: urlValidator
+        validate: urlValidator,
     }],
     instagram: {
         type: String,
@@ -48,7 +50,7 @@ const userSchema = new mongoose.Schema({
     linkedin: {
         type: String,
         validate: urlValidator
-    },
+    }],
     github: {
         type: String,
         validate: urlValidator
@@ -66,6 +68,10 @@ const userSchema = new mongoose.Schema({
     city: {
         type: String,
     },
+    projectlike: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Project',
+    }],
     followers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
