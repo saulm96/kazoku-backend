@@ -1,9 +1,15 @@
 import User from "../../models/userModel.js";
+import Project from "../../models/projectModel.js";
 import userError from "../../helpers/errors/userError.js";
 
 async function getAllUsers() {
     try {
         const users = await User.find()
+            .populate({
+                path: 'projectlike',
+                select: 'owner date irl likes',
+                model: Project
+            })
             .populate({
                 path: 'following',
                 select: ' _id username specialization',
@@ -26,16 +32,21 @@ async function getAllUsers() {
 async function getUserById(id) {
     try {
         const user = await User.findById(id)
-        .populate({
-            path: 'following',
-            select: ' _id username specialization',
-            model: User
-        })
-        .populate({
-            path: 'followers',
-            select: '_id username specialization',
-            model: User
-        });
+            .populate({
+                path: 'projectlike',
+                select: 'owner date irl likes',
+                model: Project
+            })
+            .populate({
+                path: 'following',
+                select: ' _id username specialization',
+                model: User
+            })
+            .populate({
+                path: 'followers',
+                select: '_id username specialization',
+                model: User
+            });
         if (!user) {
             throw new userError.USER_NOT_FOUND();
         }
@@ -187,8 +198,69 @@ async function checkExistingUser(email, username) {
     return user;
 }
 
-//Function to add other users id, username and specialization to my following list and my username, id and specialization to their followers list
+async function followUnfollowSystem(mainUserId, userId) {
+    try {
+        const mainUser = await User.findById(mainUserId);
+        const user = await User.findById(userId);
 
+        if (!mainUser || !user) {
+            throw new userError.USER_NOT_FOUND();
+        }
+
+        // Convert IDs to strings for comparison
+        const userIdStr = userId.toString();
+        const mainUserIdStr = mainUserId.toString();
+
+        if (mainUser.following.map(id => id.toString()).includes(userIdStr)) {
+            // Unfollow
+            mainUser.following = mainUser.following.filter(id => id.toString() !== userIdStr);
+            user.followers = user.followers.filter(id => id.toString() !== mainUserIdStr);
+        } else {
+            // Follow
+            mainUser.following.push(userId);
+            user.followers.push(mainUserId);
+        }
+
+        await mainUser.save();
+        await user.save();
+
+        return { mainUser, user };
+    }
+    catch (error) {
+        throw new userError.USER_FOLLOW_ERROR();
+    }
+}
+async function likeProject(userId, projectId) {
+    try {
+        const user = await User.findById(userId);
+        const project = await Project.findById(projectId);
+
+        if (!user || !project) {
+            throw new userError.USER_NOT_FOUND();
+        }
+
+        // Convert IDs to strings for comparison
+        const projectIdStr = projectId.toString();
+
+        if (user.projectlike.map(id => id.toString()).includes(projectIdStr)) {
+            // Unlike project
+            user.projectlike = user.projectlike.filter(id => id.toString() !== projectIdStr);
+            project.likes--;
+        } else {
+            // Like project
+            user.projectlike.push(projectId);
+            project.likes++;
+        }
+
+        await user.save();
+        await project.save();
+
+        return { user, project };
+    }
+    catch (error) {
+        throw new userError.USER_LIKE_ERROR();
+    }
+}
 export const functions = {
     getAllUsers,
     getUserById,
@@ -198,7 +270,9 @@ export const functions = {
     createUser,
     updateUser,
     deleteUser,
-    checkExistingUser
+    checkExistingUser,
+    followUnfollowSystem,
+    likeProject
 };
 
 export default functions;
