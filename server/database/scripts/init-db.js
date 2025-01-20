@@ -463,7 +463,7 @@ const users = [
     privacy: true,
     country: "Japan",
     city: "Tokyo",
-    projectlike: ["6787ca4b2a746a8a63a1d98d","6787ca4b2a746a8a63a1d99e"],
+    projectlike: [],
     followers: [],
     following: [],
     isActivated: true,

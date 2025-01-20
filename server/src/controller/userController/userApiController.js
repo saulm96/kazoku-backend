@@ -106,6 +106,53 @@ async function deleteUser(req, res) {
     }
 }
 
+async function followUnfollowSystem(req, res) {
+    try {
+        // mainUserId comes from JWT token via auth middleware
+        const mainUserId = req.body.mainUserId; 
+        // userId to follow/unfollow comes from URL params
+        const userId = req.body.userId;
+        
+        if (!userId) {
+            return res.status(400).json({
+                message: "Missing user ID to follow/unfollow",
+                status: 400
+            });
+        }
+
+        const result = await userController.followUnfollowSystem(mainUserId, userId);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error("Follow error:", error);
+        return res.status(error.status || 500).json({
+            message: error.message || "Internal server error",
+            status: error.status || 500
+        });
+    }
+}
+
+async function likeProject(req, res) {
+    try {
+        const userId = req.body.userId;
+        const projectId = req.body.projectId;
+
+        if (!userId || !projectId) {
+            return res.status(400).json({
+                message: "Missing user ID or project ID to like/unlike",
+                status: 400
+            });
+        }
+        const result = await userController.likeProject(userId, projectId);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(error.status || 500).json({
+            message: error.message || "Internal server error",
+            status: error.status || 500
+        });
+    }
+}
+
 export const functions = {
     getAllUsers,
     getUserById,
@@ -114,7 +161,9 @@ export const functions = {
     getUserByCity,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    followUnfollowSystem,
+    likeProject
 };
 
 export default functions;

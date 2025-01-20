@@ -88,6 +88,16 @@ class PASSWORD_DOES_NOT_MATCH extends UserError {
         super('Passwords do not match', 400);
     }
 }
+class USER_FOLLOW_ERROR extends UserError {
+    constructor() {
+        super('Error following user', 500);
+    }
+}
+class USER_LIKE_ERROR extends UserError {
+    constructor() {
+        super('Error liking project', 500);
+    }
+}
 
 export default {
     USER_NOT_FOUND,
@@ -103,5 +113,7 @@ export default {
     MISSING_USERS_IN_CITY,
     INCORRECT_PASSWORD,
     EMAIL_DOES_NOT_EXIST,
-    PASSWORD_DOES_NOT_MATCH
+    PASSWORD_DOES_NOT_MATCH,
+    USER_FOLLOW_ERROR,
+    USER_LIKE_ERROR
 };
