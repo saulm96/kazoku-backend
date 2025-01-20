@@ -7,7 +7,7 @@ async function getAllUsers() {
         const users = await User.find()
             .populate({
                 path: 'projectlike',
-                select: 'owner date irl likes',
+                select: 'owner date url images likes, ',
                 model: Project
             })
             .populate({

@@ -12,7 +12,7 @@ async function login(req, res) {
             throw new error.USER_NOT_FOUND();
         }
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role });
-        res.json({ token });
+        res.json({ token, userId: user._id });
     } catch (error) {
         console.error(error);
         error.status ? res.status(error.status) : res.status(500);
