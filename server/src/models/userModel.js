@@ -80,6 +80,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     }],
+    avatar: {
+        type: String,
+        default: 'https://res.cloudinary.com/dv7hswrot/image/upload/v1620714814/avatars/default_avatar.png',
+    },  
     isActivated: {
         type: Boolean,
         default: true,

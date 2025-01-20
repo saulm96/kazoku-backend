@@ -12,12 +12,12 @@ async function getAllUsers() {
             })
             .populate({
                 path: 'following',
-                select: ' _id username specialization',
+                select: ' _id username specialization avatar',
                 model: User
             })
             .populate({
                 path: 'followers',
-                select: '_id username specialization',
+                select: '_id username specialization avatar',
                 model: User
             });
         if (!users || !users.length) {
@@ -142,6 +142,10 @@ async function createUser(userData) {
             privacy: true,
             country: userData.country || '',
             city: userData.city || '',
+            following: [],
+            followers: [],
+            projectlike: [],
+            avatar: userData.avatar || '',
             isActivated: true,
             role: 'user',
             createdAt: new Date()
