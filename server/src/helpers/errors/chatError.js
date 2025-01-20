@@ -42,11 +42,18 @@ class CHAT_USER_NOT_FOUND extends ChatError {
     }
 }
 
+class CHAT_UPDATE_ERROR extends ChatError {
+    constructor(message = 'Error updating chat') {
+        super(message, 500);
+    }
+}
+
 export default {
     CHAT_NOT_FOUND,
     CHAT_LIST_ERROR,
     CHAT_CREATE_ERROR,
     CHAT_INVALID_DATA,
     CHAT_MESSAGE_ERROR,
-    CHAT_USER_NOT_FOUND
+    CHAT_USER_NOT_FOUND,
+    CHAT_UPDATE_ERROR
 };
