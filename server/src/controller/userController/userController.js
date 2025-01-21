@@ -36,7 +36,7 @@ async function getUserBySpecialization(specializations) {
         specialization: { $in: specializationArray }
     })
 
-    if(!users || !users.length) {
+    if (!users || !users.length) {
         throw new userError.USER_NOT_FOUND();
     }
 
@@ -106,13 +106,18 @@ async function getUsersByCountry(country) {
         if (!country) {
             throw new userError.MISSING_PARAMETERS();
         }
+        const countryArray = country.split(',').map(c => c.trim());
+        const regexPatterns = countryArray.map(c => new RegExp(`^${c}$`, 'i'));
+
         const users = await User.find({
-            country: { $regex: new RegExp(`^${country}$`, 'i') }
-        });
+            country: { $in: regexPatterns }
+
+        })
         if (!users || !users.length) {
             throw new userError.MISSING_USERS_IN_COUNTRY();
         }
         return users;
+
     } catch (error) {
         if (error.name === 'MISSING_USERS_IN_COUNTRY') {
             throw error;
@@ -126,10 +131,13 @@ async function getUsersByCity(city) {
         if (!city) {
             throw new userError.MISSING_PARAMETERS();
         }
+        const cityArray = city.split(',').map(c => c.trim());
+        const regexPatterns = cityArray.map(c => new RegExp(`^${c}$`, 'i'));
 
         const users = await User.find({
-            city: { $regex: new RegExp(`^${city}$`, 'i') }
-        });
+            city: { $in: regexPatterns }
+        })
+
         if (!users || !users.length) {
             throw new userError.MISSING_USERS_IN_CITY();
         }
