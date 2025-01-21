@@ -28,6 +28,20 @@ async function getAllUsers() {
         throw new userError.USER_LIST_ERROR();
     }
 }
+async function getUserByUsername(username) {
+    try {
+        const user = await User.findOne({ username: username })
+        if (!user) {
+            throw new userError.USER_NOT_FOUND();
+        }
+        return user;
+    } catch (error) {
+        if (error.name === 'USER_NOT_FOUND') {
+            throw error;
+        }
+        throw new userError.USER_NOT_FOUND();
+    }
+}
 
 async function getUserById(id) {
     try {
@@ -267,6 +281,7 @@ async function likeProject(userId, projectId) {
 }
 export const functions = {
     getAllUsers,
+    getUserByUsername,
     getUserById,
     getUserByEmail,
     getUsersByCountry,
@@ -276,7 +291,7 @@ export const functions = {
     deleteUser,
     checkExistingUser,
     followUnfollowSystem,
-    likeProject
+    likeProject,
 };
 
 export default functions;

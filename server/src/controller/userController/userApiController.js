@@ -12,7 +12,26 @@ async function getAllUsers(req, res) {
         });
     }
 }
-
+async function getUserByUsername(req, res) {
+    try {
+        console.log("Request body:", req.body); // Debug line
+        
+        const user = await userController.getUserByUsername(req.body.username);
+        console.log("API CONTROLLER USER:", user); // Debug line
+        res.status(200).json({
+            userId: user._id,
+            user_name: user.name,
+            user_lastName: user.lastname,
+            username: user.username,
+        });
+    } catch (error) {
+        console.error("Error in getUserByUsername:", error);
+        return res.status(error.status || 500).json({
+            message: error.message || "Internal server error",
+            status: error.status || 500
+        });
+    }
+}
 async function getUserById(req, res) {
     try {
         const user = await userController.getUserById(req.params.id);
@@ -109,10 +128,10 @@ async function deleteUser(req, res) {
 async function followUnfollowSystem(req, res) {
     try {
         // mainUserId comes from JWT token via auth middleware
-        const mainUserId = req.body.mainUserId; 
+        const mainUserId = req.body.mainUserId;
         // userId to follow/unfollow comes from URL params
         const userId = req.body.userId;
-        
+
         if (!userId) {
             return res.status(400).json({
                 message: "Missing user ID to follow/unfollow",
@@ -155,6 +174,7 @@ async function likeProject(req, res) {
 
 export const functions = {
     getAllUsers,
+    getUserByUsername,
     getUserById,
     getUserByEmail,
     getUserByCountry,
