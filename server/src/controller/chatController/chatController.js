@@ -2,7 +2,6 @@
 import Chat from "../../models/chatModel.js";
 import chatError from "../../helpers/errors/chatError.js";
 
-
 async function getById(id) {
     try {
         if (!id) {
@@ -13,7 +12,8 @@ async function getById(id) {
         const chat = await Chat.findById(id)
             .populate('owner', '-password')
             .populate('client', '-password')
-            .populate('project');
+            .populate('project')
+            .populate('messages.sender', '-password');
             
         if (!chat) {
             throw new chatError.CHAT_NOT_FOUND();
@@ -44,9 +44,10 @@ async function getAllChatsByUser(userId) {
         .populate('owner', '-password')
         .populate('client', '-password')
         .populate('project')
-        .sort({ updatedAt: -1 });
+        .populate('messages.sender', '-password')
+        .sort({ lastActivity: -1, updatedAt: -1 });
 
-        console.log('Found chats:', chats);
+        console.log('Found chats:', chats.length);
         return chats;
     } catch (error) {
         console.error('Error getting user chats:', error);
@@ -62,35 +63,37 @@ async function createChat(project, owner, client) {
             throw new chatError.CHAT_INVALID_DATA('Todos los campos son requeridos');
         }
 
-        // Verificar si ya existe un chat
         const existingChat = await Chat.findOne({
             project,
             $or: [
                 { owner, client },
                 { owner: client, client: owner }
             ]
-        }).populate('owner', '-password')
-          .populate('client', '-password')
-          .populate('project');
+        })
+        .populate('owner', '-password')
+        .populate('client', '-password')
+        .populate('project')
+        .populate('messages.sender', '-password');
 
         if (existingChat) {
             console.log('Existing chat found:', existingChat._id);
             return existingChat;
         }
 
-        // Crear nuevo chat
         const newChat = await Chat.create({
             project,
             owner,
             client,
-            messages: []
+            messages: [],
+            lastActivity: new Date()
         });
 
         // Poblar las referencias
         const populatedChat = await Chat.findById(newChat._id)
             .populate('owner', '-password')
             .populate('client', '-password')
-            .populate('project');
+            .populate('project')
+            .populate('messages.sender', '-password');
 
         console.log('New chat created:', populatedChat._id);
         return populatedChat;
@@ -102,7 +105,6 @@ async function createChat(project, owner, client) {
         throw new chatError.CHAT_CREATE_ERROR();
     }
 }
-
 
 async function getAllChats() {
     try {
@@ -144,29 +146,25 @@ async function addMessage(chatId, message, sender) {
             throw new chatError.CHAT_USER_NOT_FOUND();
         }
 
-        try {
-            const newMessage = {
-                message: message,
-                sender: sender,
-                timestamp: new Date(),
-                read: false
-            };
+        const newMessage = {
+            message: message,
+            sender: sender,
+            timestamp: new Date(),
+            read: false
+        };
 
-            chat.messages.push(newMessage);
-            chat.lastActivity = new Date();
-            chat = await chat.save();
+        chat.messages.push(newMessage);
+        chat.lastActivity = new Date();
+        await chat.save();
 
-            chat = await Chat.findById(chatId)
-                .populate('owner', '-password')
-                .populate('client', '-password')
-                .populate('project')
-                .populate('messages.sender', '-password');
+        // Poblar todas las referencias después de guardar
+        chat = await Chat.findById(chatId)
+            .populate('owner', '-password')
+            .populate('client', '-password')
+            .populate('project')
+            .populate('messages.sender', '-password');
 
-            return chat;
-        } catch (saveError) {
-            console.error('Error saving chat:', saveError);
-            throw new chatError.CHAT_MESSAGE_ERROR('Error al guardar el mensaje');
-        }
+        return chat;
     } catch (error) {
         console.error('Error adding message:', error);
         if (error instanceof chatError.ChatError) {
@@ -179,28 +177,47 @@ async function addMessage(chatId, message, sender) {
 async function markMessagesAsRead(chatId, userId) {
     try {
         if (!chatId || !userId) {
-            throw new chatError.CHAT_INVALID_DATA('chatId y userId son requeridos');
+            throw new chatError.CHAT_INVALID_DATA('ChatId y userId son requeridos');
         }
 
-        let chat = await Chat.findById(chatId);
+        const chat = await Chat.findById(chatId);
         
         if (!chat) {
             throw new chatError.CHAT_NOT_FOUND();
         }
 
-        const updatedCount = await chat.markMessagesAsRead(userId);
+        // Verificar que el usuario es parte del chat
+        const isParticipant = 
+            chat.owner.toString() === userId.toString() || 
+            chat.client.toString() === userId.toString();
 
-        chat = await Chat.findById(chatId)
-            .populate('owner', '-password')
-            .populate('client', '-password')
-            .populate('project')
-            .populate('messages.sender', '-password');
+        if (!isParticipant) {
+            throw new chatError.CHAT_USER_NOT_FOUND();
+        }
 
-        return {
-            success: true,
-            updatedCount,
-            chat
-        };
+        // Marcar como leídos solo los mensajes del otro usuario
+        const updatedChat = await Chat.findOneAndUpdate(
+            { _id: chatId },
+            {
+                $set: {
+                    'messages.$[elem].read': true
+                }
+            },
+            {
+                arrayFilters: [
+                    { 
+                        'elem.sender': { $ne: userId },
+                        'elem.read': false
+                    }
+                ],
+                new: true
+            }
+        ).populate('owner', '-password')
+         .populate('client', '-password')
+         .populate('project')
+         .populate('messages.sender', '-password');
+
+        return updatedChat;
     } catch (error) {
         console.error('Error marking messages as read:', error);
         if (error instanceof chatError.ChatError) {
@@ -223,8 +240,10 @@ async function updateChatStatus(chatId, status) {
         }
 
         chat.status = status;
-        chat = await chat.save();
+        chat.lastActivity = new Date();
+        await chat.save();
 
+        // Poblar todas las referencias después de actualizar
         chat = await Chat.findById(chatId)
             .populate('owner', '-password')
             .populate('client', '-password')

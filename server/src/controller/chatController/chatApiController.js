@@ -72,6 +72,33 @@ async function getById(req, res) {
     }
 }
 
+async function markAsRead(req, res) {
+    try {
+        const { chatId } = req.params;
+        const userId = req.user._id; // Obtener el userId del token
+
+        if (!chatId) {
+            return res.status(400).json({
+                success: false,
+                message: "ChatId es requerido"
+            });
+        }
+
+        const updatedChat = await chatController.markMessagesAsRead(chatId, userId);
+        
+        return res.status(200).json({
+            success: true,
+            data: updatedChat
+        });
+    } catch (error) {
+        console.error('Error in markAsRead:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || "Error al marcar mensajes como leídos"
+        });
+    }
+}
+
 async function getAllChatsByUser(req, res) {
     try {
         const { userId } = req.params;
@@ -96,6 +123,32 @@ async function getAllChatsByUser(req, res) {
             success: false,
             message: error.message || "Error interno del servidor",
             data: []
+        });
+    }
+}
+
+async function updateChatStatus(req, res) {
+    try {
+        const { chatId } = req.params;
+        const { status } = req.body;
+
+        if (!chatId || !status) {
+            return res.status(400).json({
+                success: false,
+                message: "chatId y status son requeridos"
+            });
+        }
+
+        const updatedChat = await chatController.updateChatStatus(chatId, status);
+        return res.status(200).json({
+            success: true,
+            data: updatedChat
+        });
+    } catch (error) {
+        console.error('Error in updateChatStatus:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || "Error al actualizar el estado del chat"
         });
     }
 }
@@ -132,5 +185,7 @@ export default {
     getAllChats,
     getById,
     getAllChatsByUser,
-    addMessage
+    addMessage,
+    markAsRead,
+    updateChatStatus
 };
