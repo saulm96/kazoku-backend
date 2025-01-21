@@ -1,4 +1,5 @@
 import User from "../../models/userModel.js";
+import Image from "../../models/imageModel.js";
 import Project from "../../models/projectModel.js";
 import userError from "../../helpers/errors/userError.js";
 
@@ -8,7 +9,17 @@ async function getAllUsers() {
             .populate({
                 path: 'projectlike',
                 select: 'owner date url images likes, ',
-                model: Project
+                model: Project,
+                populate: [{
+                    path: 'owner',
+                    select: '_id name lastname username',
+                    model: User
+                }, {
+                    path: 'images',
+                    select: 'url',
+                    model: Image
+                }]
+
             })
             .populate({
                 path: 'following',
@@ -64,8 +75,18 @@ async function getUserById(id) {
         const user = await User.findById(id)
             .populate({
                 path: 'projectlike',
-                select: 'owner date irl likes',
-                model: Project
+                select: 'owner date url images likes, ',
+                model: Project,
+                populate: [{
+                    path: 'owner',
+                    select: '_id name lastname username',
+                    model: User
+                }, {
+                    path: 'images',
+                    select: 'url',
+                    model: Image
+                }]
+
             })
             .populate({
                 path: 'following',
@@ -201,6 +222,9 @@ async function createUser(userData) {
 
 async function updateUser(id, userData) {
     try {
+        if(userData.file){
+            userData.avatar = userData.file.path;
+        }
         const updatedUser = await User.findByIdAndUpdate(
             id,
             { $set: userData },
