@@ -8,8 +8,10 @@ router.get("/", userApiController.getAllUsers);
 router.post("/", userApiController.createUser);
 router.get("/city", userApiController.getUserByCity);
 router.get("/country", userApiController.getUserByCountry);
-router.put("/follow/",isAuthenticated ,userApiController.followUnfollowSystem);
-router.put("/like/", userApiController.likeProject);
+router.get("/username/", userApiController.getUserByUsername);
+router.get("/specialization", userApiController.getUserBySpecialization);
+router.put("/follow",isAuthenticated ,userApiController.followUnfollowSystem);
+router.put("/like", userApiController.likeProject);
 
 router.get("/:id", userApiController.getUserById);
 
