@@ -222,6 +222,9 @@ async function createUser(userData) {
 
 async function updateUser(id, userData) {
     try {
+        if(userData.file){
+            userData.avatar = userData.file.path;
+        }
         const updatedUser = await User.findByIdAndUpdate(
             id,
             { $set: userData },
