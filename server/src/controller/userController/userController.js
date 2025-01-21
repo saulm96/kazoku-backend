@@ -28,6 +28,22 @@ async function getAllUsers() {
         throw new userError.USER_LIST_ERROR();
     }
 }
+async function getUserBySpecialization(specializations) {
+    const specializationArray = specializations.split(',').map(s => s.trim());
+
+
+    const users = await User.find({
+        specialization: { $in: specializationArray }
+    })
+
+    if(!users || !users.length) {
+        throw new userError.USER_NOT_FOUND();
+    }
+
+    return users;
+
+}
+
 async function getUserByUsername(username) {
     try {
         const user = await User.findOne({ username: username })
@@ -149,8 +165,8 @@ async function createUser(userData) {
             telephone: userData.telephone || '',
             specialization: userData.specialization || 'None',
             website: userData.website || [],
-            github: userData.github ,
-            linkedin: userData.linkedin ,
+            github: userData.github,
+            linkedin: userData.linkedin,
             instagram: userData.instagram,
             description: userData.description || '',
             privacy: true,
@@ -282,6 +298,7 @@ async function likeProject(userId, projectId) {
 export const functions = {
     getAllUsers,
     getUserByUsername,
+    getUserBySpecialization,
     getUserById,
     getUserByEmail,
     getUsersByCountry,

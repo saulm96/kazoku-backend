@@ -9,8 +9,9 @@ router.post("/", userApiController.createUser);
 router.get("/city", userApiController.getUserByCity);
 router.get("/country", userApiController.getUserByCountry);
 router.get("/username/", userApiController.getUserByUsername);
-router.put("/follow/",isAuthenticated ,userApiController.followUnfollowSystem);
-router.put("/like/", userApiController.likeProject);
+router.get("/specialization", userApiController.getUserBySpecialization);
+router.put("/follow",isAuthenticated ,userApiController.followUnfollowSystem);
+router.put("/like", userApiController.likeProject);
 
 router.get("/:id", userApiController.getUserById);
 

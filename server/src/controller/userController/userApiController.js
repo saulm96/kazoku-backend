@@ -12,6 +12,18 @@ async function getAllUsers(req, res) {
         });
     }
 }
+async function getUserBySpecialization(req, res){
+    try {
+        const users = await userController.getUserBySpecialization(req.body.specialization);
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        return res.status(error.status || 500).json({
+            message: error.message || "Internal server error",
+            status: error.status || 500
+        });
+    }
+}
 async function getUserByUsername(req, res) {
     try {
         console.log("Request body:", req.body); // Debug line
@@ -174,6 +186,7 @@ async function likeProject(req, res) {
 
 export const functions = {
     getAllUsers,
+    getUserBySpecialization,
     getUserByUsername,
     getUserById,
     getUserByEmail,
