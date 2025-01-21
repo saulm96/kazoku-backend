@@ -1,5 +1,7 @@
 import userController from "./userController.js";
 
+import upload from "../../config/multer.js";
+
 async function getAllUsers(req, res) {
     try {
         const users = await userController.getAllUsers();
@@ -12,7 +14,7 @@ async function getAllUsers(req, res) {
         });
     }
 }
-async function getUserBySpecialization(req, res){
+async function getUserBySpecialization(req, res) {
     try {
         const users = await userController.getUserBySpecialization(req.body.specialization);
         res.status(200).json(users);
@@ -27,7 +29,7 @@ async function getUserBySpecialization(req, res){
 async function getUserByUsername(req, res) {
     try {
         console.log("Request body:", req.body); // Debug line
-        
+
         const user = await userController.getUserByUsername(req.body.username);
         console.log("API CONTROLLER USER:", user); // Debug line
         res.status(200).json({
@@ -111,13 +113,50 @@ async function createUser(req, res) {
 
 async function updateUser(req, res) {
     try {
-        const user = await userController.updateUser(req.params.id, req.body);
-        res.status(200).json(user);
+        const userData = req.body
+        if (req.file) {
+            userData.file = req.file
+        }
+
+        const updatedUser = await userController.updateUser(req.params.id, userData);
+        res.status(200).json(updatedUser);
     } catch (error) {
         console.error(error);
         return res.status(error.status || 500).json({
             message: error.message || "Internal server error",
             status: error.status || 500
+        });
+    }
+}
+
+async function updateAvatarFromUser(req, res) {
+    try {
+        // Check for file
+        if (!req.file) {
+            return res.status(400).json({
+                message: "Missing avatar image",
+                status: 400
+            });
+        }
+
+        // Fix typo in req.user
+        const userId = req.user._id; // Was req-user._id
+
+        const avatarUrl = `archives/avatars/${req.file.filename}`;
+
+        const updatedUser = await userController.updateUser(userId, { avatar: avatarUrl });
+
+        res.status(200).json({
+            success: true,
+            data: updatedUser
+        });
+
+    } catch (error) {
+        console.error('Error updating avatar:', error);
+        // Fix typo in json()
+        res.status(500).json({ // Was status(500),json
+            success: false,
+            message: error.message || "Internal server error"
         });
     }
 }
@@ -194,6 +233,7 @@ export const functions = {
     getUserByCity,
     createUser,
     updateUser,
+    updateAvatarFromUser,
     deleteUser,
     followUnfollowSystem,
     likeProject
