@@ -13,7 +13,7 @@ router.get("/user/:userId", chatApiController.getAllChatsByUser);
 router.post("/", chatApiController.createChat);
 router.get("/:id", chatApiController.getById);
 router.put("/:chatId", chatApiController.addMessage);
-/* router.put("/chats/:chatId/read", chatApiController.markAsRead);
-router.put("/chats/:chatId/status", chatApiController.updateStatus); */
+router.put("/:chatId/read", chatApiController.markAsRead);
+router.put("/:chatId/status", chatApiController.updateChatStatus);
 
 export default router;

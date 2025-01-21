@@ -66,10 +66,12 @@ export function startSocket(server) {
             }
         });
 
+        // Indicador de escritura
         socket.on("typing", ({ chatId, userId }) => {
             socket.to(chatId).emit("user-typing", { userId });
         });
         
+        // Confirmación de recepción de mensaje
         socket.on("message-received", ({ chatId, messageId, receiverId }) => {
             const senderSocketId = users.get(receiverId);
             if (senderSocketId) {
@@ -77,6 +79,7 @@ export function startSocket(server) {
             }
         });
         
+        // Confirmación de lectura de mensaje
         socket.on("message-read", ({ chatId, messageId, senderId }) => {
             const senderSocketId = users.get(senderId);
             if (senderSocketId) {
@@ -84,33 +87,23 @@ export function startSocket(server) {
             }
         });
 
-        // Mensaje privado
-        socket.on("private-message", async ({message, senderId, receiverId, chatId}) => {
+        // Manejo de mensajes privados
+        socket.on("private-message", async ({message, sender, chatId, timestamp}) => {
             try {
-                const receiverSocketId = users.get(receiverId);
-                const messageData = {
+                // El mensaje ya se guardó en la base de datos desde el cliente
+                // Solo necesitamos emitirlo a los otros usuarios
+                socket.broadcast.to(chatId).emit("private-message", {
                     message,
-                    senderId,
-                    timestamp: new Date()
-                };
-
-                if (chatId) {
-                    await chatController.addMessage(chatId, message, senderId);
-                }
-
-                if (receiverSocketId) {
-                    io.to(receiverSocketId).emit("private-message", messageData);
-                    socket.emit("message-sent", messageData);
-                } else {
-                    socket.emit("user-offline", { receiverId });
-                }
+                    sender,
+                    timestamp: timestamp || new Date().toISOString(),
+                    chatId
+                });
             } catch (error) {
-                console.error('Error en mensaje privado:', error);
-                socket.emit("message-error", { error: "Error al enviar mensaje privado" });
+                console.error('Error en private-message:', error);
+                socket.emit("message-error", { error: "Error al enviar mensaje" });
             }
         });
-
-        // Desconexión
+        // Manejo de desconexión
         socket.on("disconnect", () => {
             console.log("Socket disconnected with id:" + socket.id);
             users.forEach((value, key) => {
@@ -122,6 +115,7 @@ export function startSocket(server) {
         });
     });
 
+    // Función para emitir eventos a usuarios específicos
     function emitToUser(userId, event, data) {
         const socketId = users.get(userId.toString());
         console.log("Emitting message to", userId, socketId, event);
