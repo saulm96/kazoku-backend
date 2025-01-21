@@ -11,7 +11,7 @@ router.get("/country", userApiController.getUserByCountry);
 router.get("/username/", userApiController.getUserByUsername);
 router.get("/specialization", userApiController.getUserBySpecialization);
 router.put("/follow",isAuthenticated ,userApiController.followUnfollowSystem);
-router.put("/like", userApiController.likeProject);
+router.put("/like-project",isAuthenticated, userApiController.likeProject);
 
 router.get("/:id", userApiController.getUserById);
 
