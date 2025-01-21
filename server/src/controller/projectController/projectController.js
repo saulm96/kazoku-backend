@@ -20,6 +20,64 @@ function getModels() {
         throw error;
     }
 }
+async function getProyectByMultipleFilters(filterObj) {
+    try {
+        const Models = getModels();
+        if (!filterObj || Object.keys(filterObj).length === 0) {
+            return [];
+        }
+
+        const conditions = [];
+        
+        // Process Type filter
+        if (filterObj.Type) {
+            const typeNames = filterObj.Type.split(',').map(name => name.trim());
+            const types = await Models.Type.find({ name: { $in: typeNames } });
+            const typeIds = types.map(type => type._id);
+            if (typeIds.length > 0) {
+                conditions.push({ types: { $in: typeIds } });
+            }
+        }
+
+        // Process Style filter
+        if (filterObj.Style) {
+            const styleNames = filterObj.Style.split(',').map(name => name.trim());
+            const styles = await Models.Style.find({ name: { $in: styleNames } });
+            const styleIds = styles.map(style => style._id);
+            if (styleIds.length > 0) {
+                conditions.push({ styles: { $in: styleIds } });
+            }
+        }
+
+        // Process Subject filter
+        if (filterObj.Subject) {
+            const subjectNames = filterObj.Subject.split(',').map(name => name.trim());
+            const subjects = await Models.Subject.find({ name: { $in: subjectNames } });
+            const subjectIds = subjects.map(subject => subject._id);
+            if (subjectIds.length > 0) {
+                conditions.push({ subjects: { $in: subjectIds } });
+            }
+        }
+
+        if (conditions.length === 0) {
+            return [];
+        }
+
+        const projects = await Project.find({ $or: conditions })
+            .populate('owner')
+            .populate('team_members')
+            .populate('styles')
+            .populate('subjects')
+            .populate('types')
+
+        return projects;
+
+    } catch (error) {
+        console.error('Error in getProyectByMultipleFilters:', error);
+        throw new projectError.PROJECT_LIST_ERROR(error.message);
+    }
+}
+
 
 async function createProject(name, date, description, status, likes, url, owner, team_members, styles, subjects, types, tempImages) {
     try {
@@ -69,7 +127,7 @@ async function createProject(name, date, description, status, likes, url, owner,
 
         // Crear directorio usando el ID del proyecto
         const projectDir = `database/archives/${project._id}`;
-        if (!fs.existsSync(projectDir)){
+        if (!fs.existsSync(projectDir)) {
             fs.mkdirSync(projectDir, { recursive: true });
         }
 
@@ -138,14 +196,14 @@ async function getAllProjects(owner, category) {
         console.log('\n=== Getting All Projects ===');
         const Models = getModels();
         const filter = {};
-        
+
         if (owner) {
             if (!mongoose.Types.ObjectId.isValid(owner)) {
                 throw new projectError.PROJECT_INVALID_DATA("Invalid owner ID");
             }
             filter.owner = owner;
         }
-        
+
         if (category) {
             filter.category = category;
         }
@@ -240,7 +298,7 @@ async function getProject(id) {
     } catch (error) {
         console.error('\n=== Error in getProject ===');
         console.error('Error details:', error);
-        
+
         if (error.name === 'PROJECT_NOT_FOUND' || error.name === 'PROJECT_INVALID_DATA') {
             throw error;
         }
@@ -325,7 +383,7 @@ async function removeProjectImage(projectId, imageId) {
     try {
         const Models = getModels();
         console.log('\n=== Removing Image from Project ===');
-        
+
         const project = await Project.findById(projectId);
         if (!project) {
             throw new projectError.PROJECT_NOT_FOUND();
@@ -388,7 +446,7 @@ async function deleteProject(id) {
 
         // Eliminar directorio de imágenes con manejo de errores
         const projectDir = path.join('database', 'archives', project._id.toString());
-        
+
         if (fs.existsSync(projectDir)) {
             try {
                 // Primero intentamos eliminar todos los archivos individualmente
@@ -412,7 +470,7 @@ async function deleteProject(id) {
                 console.log(`Deleted project directory: ${projectDir}`);
             } catch (dirError) {
                 console.error(`Error deleting directory ${projectDir}:`, dirError);
-                
+
                 // Si falla rmdir, intentar con rm -rf equivalente
                 try {
                     fs.rmSync(projectDir, { force: true, recursive: true });
@@ -432,7 +490,7 @@ async function deleteProject(id) {
     } catch (error) {
         console.error('\n=== Error in deleteProject ===');
         console.error('Error details:', error);
-        
+
         if (error.name === 'PROJECT_NOT_FOUND' || error.name === 'PROJECT_INVALID_DATA') {
             throw error;
         }
@@ -465,8 +523,9 @@ export const functions = {
     updateProject,
     deleteProject,
     removeProjectImage,
-    cleanupTempImages
-    
+    cleanupTempImages,
+    getProyectByMultipleFilters
+
 }
 
 export default functions;
