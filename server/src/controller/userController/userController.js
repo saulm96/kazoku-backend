@@ -223,7 +223,8 @@ async function createUser(userData) {
 async function updateUser(id, userData) {
     try {
         if(userData.file){
-            userData.avatar = userData.file.path;
+            userData.avatar = `/database/archives/avatars/${userData.file.filename}`;
+
         }
         const updatedUser = await User.findByIdAndUpdate(
             id,

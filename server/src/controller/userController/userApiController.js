@@ -1,6 +1,5 @@
 import userController from "./userController.js";
 
-import upload from "../../config/multer.js";
 
 async function getAllUsers(req, res) {
     try {
