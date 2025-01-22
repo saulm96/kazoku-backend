@@ -28,10 +28,9 @@ async function getUserBySpecialization(req, res) {
 }
 async function getUserByUsername(req, res) {
     try {
-        console.log("Request body:", req.body); // Debug line
+        console.log("Request body:", req.params); // Debug line
 
-        const user = await userController.getUserByUsername(req.body.username);
-        console.log("API CONTROLLER USER:", user); // Debug line
+        const user = await userController.getUserByUsername(req.params.username);
         res.status(200).json({
             userId: user._id,
             user_name: user.name,
