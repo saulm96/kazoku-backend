@@ -306,75 +306,73 @@ async function getProject(id) {
     }
 }
 
-async function updateProject(id, name, date, description, status, likes, url, owner, team_members, styles, subjects, types, tempImages = null) {
+async function updateProject(id, name, date, description, status, likes, url, owner, team_members, styles, subjects, types, newImages = [], existingImages = []) {
     try {
         const Models = getModels();
-        console.log('\n=== Starting Project Update ===');
-
         const project = await Project.findById(id);
+        
         if (!project) {
-            throw new projectError.PROJECT_NOT_FOUND();
+            throw new Error('Project not found');
         }
 
-        // Actualizar datos básicos
+        // Actualizar campos básicos
         project.name = name || project.name;
         project.date = date || project.date;
         project.description = description || project.description;
         project.status = status || project.status;
-        project.likes = parseInt(likes) || project.likes;
+        project.likes = likes || project.likes;
         project.url = url || project.url;
         project.owner = owner || project.owner;
-        project.team_members = team_members ? (Array.isArray(team_members) ? team_members : [team_members]) : project.team_members;
-        project.styles = styles ? (Array.isArray(styles) ? styles : [styles]) : project.styles;
-        project.subjects = subjects ? (Array.isArray(subjects) ? subjects : [subjects]) : project.subjects;
-        project.types = types ? (Array.isArray(types) ? types : [types]) : project.types;
+        
+        // Manejar arrays
+        project.team_members = team_members?.length ? team_members : project.team_members;
+        project.styles = styles?.length ? styles : project.styles;
+        project.subjects = subjects?.length ? subjects : project.subjects;
+        project.types = types?.length ? types : project.types;
 
-        // Si hay nuevas imágenes, procesarlas
-        if (tempImages && tempImages.length > 0) {
-            const projectDir = `database/archives/${project._id}`;
-            const imageIds = project.images.slice();
+        // Manejar imágenes
+        const projectDir = `database/archives/${project._id}`;
+        if (!fs.existsSync(projectDir)) {
+            fs.mkdirSync(projectDir, { recursive: true });
+        }
 
-            for (const tempImage of tempImages) {
-                const tempPath = tempImage.path;
-                const fileName = path.basename(tempPath);
+        let currentImages = [];
+
+        // Procesar imágenes existentes
+        if (existingImages?.length) {
+            const existingImageDocs = await Models.Image.find({
+                'url': { $in: existingImages }
+            });
+            currentImages.push(...existingImageDocs.map(img => img._id));
+        }
+
+        // Procesar nuevas imágenes
+        if (newImages?.length) {
+            for (const tempImage of newImages) {
+                const fileName = path.basename(tempImage.path);
                 const newPath = path.join(projectDir, fileName);
 
-                // Mover archivo
-                fs.renameSync(tempPath, newPath);
-                console.log(`Moved new image to: ${newPath}`);
+                fs.renameSync(tempImage.path, newPath);
 
-                // Crear registro de imagen
                 const image = await Models.Image.create({
                     name: fileName,
-                    url: path.join('archives', project._id.toString(), fileName)
+                    url: path.join(project._id.toString(), fileName)
                 });
 
-                imageIds.push(image._id);
-                console.log(`Added new image with ID: ${image._id}`);
+                currentImages.push(image._id);
             }
+        }
 
-            project.images = imageIds;
+        // Actualizar imágenes del proyecto
+        if (currentImages.length) {
+            project.images = currentImages;
         }
 
         await project.save();
-        console.log('Project updated successfully');
-
         return await populateProject(project._id);
 
     } catch (error) {
-        console.error('\n=== Error in updateProject ===');
-        console.error('Error details:', error);
-
-        // Limpiar archivos temporales en caso de error
-        if (tempImages && tempImages.length > 0) {
-            tempImages.forEach(tempImage => {
-                if (fs.existsSync(tempImage.path)) {
-                    fs.unlinkSync(tempImage.path);
-                    console.log(`Cleaned up temporary file: ${tempImage.path}`);
-                }
-            });
-        }
-
+        console.error('Error in updateProject:', error);
         throw error;
     }
 }
