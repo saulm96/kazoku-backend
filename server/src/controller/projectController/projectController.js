@@ -147,7 +147,7 @@ async function createProject(name, date, description, status, likes, url, owner,
                 // Crear registro de imagen en MongoDB
                 const image = await Models.Image.create({
                     name: fileName,
-                    url: path.join('archives', project._id.toString(), fileName)
+                    url: path.join( project._id.toString(), fileName)
                 });
 
                 imageIds.push(image._id);

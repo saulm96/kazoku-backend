@@ -46,7 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Static files
-app.use('/database/archives', express.static('database/archives'));
+app.use(express.static('database/archives'));
 
 // Routes
 app.get("/", (req, res) => {
