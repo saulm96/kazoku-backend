@@ -10,7 +10,8 @@ router.post('/own', isAuthenticated, projectApiController.uploadMiddleware, proj
 router.get("/filter", projectApiController.getProyectByMultipleFilters);
 router.get("/:id", projectApiController.getProject);
 router.delete("/:id", projectApiController.deleteProject);
-router.put('/:id', projectApiController.uploadMiddleware, projectApiController.updateProject);
+router.put('/:id', isAuthenticated, projectApiController.uploadMiddleware, projectApiController.updateProject);
 router.post('/:id/images', projectApiController.uploadMiddleware,projectApiController.createProject);
+
 
 export default router;
