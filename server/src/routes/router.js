@@ -1,12 +1,29 @@
 import { Router } from "express";
+import userRouter from "./userRoutes.js";
+import projectRouter from "./projectsRoutes.js";
+import imageRouter from "./imageRouter.js";
+import chatRouter from "./chatRouter.js";
+import styleRouter from "./styleRouter.js";
+import subjectRouter from "./subjectRouter.js";
+import typeRouter from "./typeRouter.js";
 
-import ProjectApiController  from "../controller/project/projectApiController.js";
+import authApiController from "../controller/auth/authApiController.js"
+
+
 
 const router = Router();
 
-router.get("/projects", ProjectApiController.getAllProjects);
-router.post("/projects", ProjectApiController.createProject);
-router.get("/projects/:id", ProjectApiController.getProject);
-router.delete("/projects/:id", ProjectApiController.deleteProject);
+router.post("/login", authApiController.login);
+router.post("/register", authApiController.register);
+
+router.use("/users",userRouter)
+router.use("/projects", projectRouter)
+router.use("/images", imageRouter);
+router.use("/chats", chatRouter);
+router.use("/styles", styleRouter);
+router.use("/subjects", subjectRouter);
+router.use("/types", typeRouter);
+
+
 
 export default router;
