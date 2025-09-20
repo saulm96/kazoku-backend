@@ -287,14 +287,15 @@ async function followUnfollowSystem(mainUserId, userId) {
             mainUser.following.push(userId);
             user.followers.push(mainUserId);
         }
-
         await mainUser.save();
         await user.save();
 
         return { mainUser, user };
     }
     catch (error) {
+        console.error("Follow/unfollow error:", error);
         throw new userError.USER_FOLLOW_ERROR();
+        
     }
 }
 async function likeProject(userId, projectId) {

@@ -12,6 +12,7 @@ async function login(req, res) {
             throw new error.USER_NOT_FOUND();
         }
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role });
+        console.log(token)
         res.json({ token, userId: user._id });
     } catch (error) {
         console.error(error);
@@ -24,7 +25,6 @@ async function login(req, res) {
 async function register(req, res) {
     try {
         const { email, username, password, confirmedPassword } = req.body;
-        console.log(password, confirmedPassword)
         const newUser = await authController.register(email, username, password, confirmedPassword);
 
         res.json(newUser);
