@@ -98,6 +98,61 @@ class USER_LIKE_ERROR extends UserError {
         super('Error liking project', 500);
     }
 }
+export class LOCAL_AUTH_NOT_CONFIGURED extends Error {
+    constructor() {
+        super("This account was created with OAuth. Please use Google or GitHub to sign in, or set up a password first.");
+        this.status = 400;
+    }
+}
+
+export class PROVIDER_ALREADY_LINKED extends Error {
+    constructor() {
+        super("This provider is already linked to your account.");
+        this.status = 400;
+    }
+}
+
+export class PROVIDER_LINKED_TO_ANOTHER_ACCOUNT extends Error {
+    constructor() {
+        super("This provider is already linked to another account.");
+        this.status = 409;
+    }
+}
+
+export class CANNOT_UNLINK_LAST_PROVIDER extends Error {
+    constructor() {
+        super("Cannot unlink the last authentication method. Add another method first.");
+        this.status = 400;
+    }
+}
+
+export class CANNOT_UNLINK_WITHOUT_PASSWORD extends Error {
+    constructor() {
+        super("Cannot unlink local authentication without setting up a password first.");
+        this.status = 400;
+    }
+}
+
+export class OAUTH_CALLBACK_ERROR extends Error {
+    constructor() {
+        super("OAuth authentication failed.");
+        this.status = 400;
+    }
+}
+
+export class PROVIDER_DATA_NOT_FOUND extends Error {
+    constructor() {
+        super("Provider data not found in OAuth response.");
+        this.status = 400;
+    }
+}
+
+export class INVALID_PROVIDER extends Error {
+    constructor() {
+        super("Invalid authentication provider specified.");
+        this.status = 400;
+    }
+}
 
 export default {
     USER_NOT_FOUND,
@@ -115,5 +170,13 @@ export default {
     EMAIL_DOES_NOT_EXIST,
     PASSWORD_DOES_NOT_MATCH,
     USER_FOLLOW_ERROR,
-    USER_LIKE_ERROR
+    USER_LIKE_ERROR,
+    LOCAL_AUTH_NOT_CONFIGURED,
+    PROVIDER_ALREADY_LINKED,
+    PROVIDER_LINKED_TO_ANOTHER_ACCOUNT,
+    CANNOT_UNLINK_LAST_PROVIDER,
+    CANNOT_UNLINK_WITHOUT_PASSWORD,
+    OAUTH_CALLBACK_ERROR,
+    PROVIDER_DATA_NOT_FOUND,
+    INVALID_PROVIDER
 };
