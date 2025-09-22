@@ -1,6 +1,8 @@
 // index.js
 import express from "express";
 import dotenv from "dotenv";
+import session from "express-session";
+import passport from "./config/passport.js"
 import { createServer } from "http";
 import connectDb from "./config/connectDb.js";
 import router from "./routes/router.js";
@@ -49,14 +51,21 @@ app.use(express.json());
 app.use(express.static('database/archives'));
 
 // Routes
-app.get("/", (req, res) => {
-    res.json({ 
-        message: "CodeOrbit API Running",
-        environment: process.env.NODE_ENV
-    });
-});
+app.use(session({
+    secret: process.env.JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false, // Cambiar a true en producción con HTTPS
+        maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    }
+}));
+
+app.use(passport.initialize());
 
 app.use("", router);
+
+
 
 // Error handling
 app.use((err, req, res, next) => {

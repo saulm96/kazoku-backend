@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Please provide a password'],
+        // ⚠️ CAMBIO: Ya no es requerido porque usuarios OAuth pueden no tenerlo
     },
     telephone: {
         type: String,
@@ -93,6 +93,35 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user',
     },
+    
+    // ✅ NUEVOS CAMPOS PARA OAuth
+    authProviders: [{
+        provider: {
+            type: String,
+            enum: ['local', 'google', 'github'],
+            required: true
+        },
+        providerId: {
+            type: String,
+            required: true
+        },
+        providerEmail: {
+            type: String, // Para casos donde el email del proveedor difiere del principal
+        },
+        connectedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    
+    // Metadatos de registro inicial
+    registrationMethod: {
+        type: String,
+        enum: ['local', 'google', 'github'],
+        required: true,
+        default: 'local'
+    },
+    
     createdAt: {
         type: Date,
         default: Date.now,
@@ -100,8 +129,8 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        next();
+    if (!this.password || !this.isModified('password')) {
+        return next();
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -109,8 +138,27 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.methods.matchPassword = async function (password) {
+    if (!this.password) return false;
     return await bcrypt.compare(password, this.password);
 }
+
+userSchema.methods.hasProvider = function(provider) {
+    return this.authProviders.some(p => p.provider === provider);
+};
+
+userSchema.methods.addProvider = function(provider, providerId, providerEmail) {
+    if (!this.hasProvider(provider)) {
+        this.authProviders.push({
+            provider,
+            providerId,
+            providerEmail: providerEmail || this.email
+        });
+    }
+};
+
+userSchema.methods.getProvider = function(provider) {
+    return this.authProviders.find(p => p.provider === provider);
+};
 
 const User = mongoose.model('User', userSchema);
 

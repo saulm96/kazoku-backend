@@ -180,6 +180,7 @@ async function followUnfollowSystem(req, res) {
         const mainUserId = req.body.mainUserId;
         // userId to follow/unfollow comes from URL params
         const userId = req.body.userId;
+        console.log("Follow/unfollow request in api controller:", { mainUserId, userId });
 
         if (!userId) {
             return res.status(400).json({
@@ -187,7 +188,7 @@ async function followUnfollowSystem(req, res) {
                 status: 400
             });
         }
-
+ 
         const result = await userController.followUnfollowSystem(mainUserId, userId);
         return res.status(200).json(result);
     } catch (error) {
